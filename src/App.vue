@@ -1,12 +1,17 @@
 <template>
+  <!--<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">-->
+
   <div id="app">
-    <img src="./assets/logo.png">
+    <!--<img src="./assets/logo.png">-->
     <router-view/>
   </div>
 </template>
 
 <script>
-export default {
+
+
+
+  export default {
   name: 'app',
 };
 </script>

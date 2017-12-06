@@ -16,4 +16,4 @@ selenium-debug.log
 *.njsproj
 *.sln
 /src/credentials.json
-/build/
+
