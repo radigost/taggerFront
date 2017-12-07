@@ -12,7 +12,7 @@
               <!--</md-card-header-text>-->
 
               <md-card-media style="max-width: 20em;">
-                <img :id="file.Key" >
+                <img :id="file.Key" :src="file.src">
                 <!--<img src="/assets/examples/cover.png" alt="People">-->
               </md-card-media>
             </md-card-media-cover>
@@ -24,10 +24,15 @@
           <md-card-area>
             <md-card-content>
               <md-progress-spinner v-show="isLoading(file)" class="md-accent" md-mode="indeterminate"></md-progress-spinner>
+                <div >
+                  <span v-for="label in file.labels">
+                    <md-chip class="md-primary" md-deletable >{{label.Name}}</md-chip>
+                  </span>
+                </div>
 
-              <span v-for="label in file.labels">
-            <span>{{label.Name}} - {{label.Confidence.toFixed(2)}}%</span>,
-          </span>
+
+            <!--<span>{{label.Name}} - {{label.Confidence.toFixed(2)}}%</span>,-->
+          <!--</span>-->
             </md-card-content>
           </md-card-area>
 
@@ -42,7 +47,7 @@
         </md-card>
       </div>
       <div class="md-layout-item md-size-33">
-        <p>File name:
+        <!--<p>File name:-->
           <input id="photoupload" type="file" name="imgfile" v-on:change="onFileChange" style="display: none;">
           <br>
           <md-button class="md-fab md-primary" onclick="document.getElementById('photoupload').click();">
@@ -51,7 +56,7 @@
 
           <!--<md-button type="button" value="Browse..." onclick="document.getElementById('photoupload').click();" />-->
 
-        </p>
+        <!--</p>-->
       </div>
 
 
@@ -112,7 +117,6 @@
           this.buckets();
       },
       deleteImage(key){
-//        console.log(`deleteng ${key}`,this.files);
         const params = {
           Bucket: credentials.Bucket,
           Key: key
@@ -154,8 +158,8 @@
 
         const retrievedImage = await retrieveImage(image.Key);
         const  b64encoded = btoa(Uint8ToString(retrievedImage));
-        const preview = document.getElementById(image.Key);
-        preview.src = `data:image/jpeg;base64,${b64encoded}`;
+//        const preview = document.getElementById(image.Key);
+        image.src = `data:image/jpeg;base64,${b64encoded}`;
         return image;
 
       },
@@ -163,15 +167,16 @@
         const  params = {
           Bucket: credentials.Bucket,
         };
-        s3.listObjects(params,  (err, data)=> {
+        s3.listObjects(params,async (err, data)=> {
           if (err) console.log(err, err.stack); // an error occurred
           else  {
             this.files = data.Contents;
             this.files = _.map(this.files,file=>_.assign(file,{loading:true}));
-            _.forEach(this.files,async (image)=>{
-              await this.getImage(image);
-            });
+            let promises =  _.map(this.files, async (file)=>await this.getImage(file));
+            this.files = await Promise.all(promises);
             this.files = _.map(this.files,file=>_.assign(file,{loading:false}));
+
+            _.forEach(this.files,(file)=>this.detectLabels(file.Key))
           }
         });
       },
@@ -184,13 +189,13 @@
           ACL: 'public-read-write'
         };
 
-        s3.upload(params, (err, data)=> {
+        s3.upload(params,async (err, data)=> {
           if (err) {
             return console.error('There was an error uploading your photo: ', err.message);
           }
-          console.log('Successfully uploaded photo.',data);
+          data = await this.getImage(data);
           this.files.push(data);
-          this.getImage(data);
+          this.detectLabels(data.Key);
         });
       },
       async detectLabels(name){
@@ -210,14 +215,12 @@
             rekognition.detectLabels(params, (err, data)=> {
               if (err) reject(err, err.stack); // an error occurred
               else {
-                console.log(data);
                 resolve(data.Labels);
               }
             });
           })
         }
 
-        console.info(`detecting image for ${name}`);
         try {
           this.files = _.map(this.files,(file)=>file.Key===name ? _.assign(file,{loading:true}) : file )
           const labels = await doDetect(name);
