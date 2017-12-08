@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
     <h1>Теггер v 0.1</h1>
+
     <div class ="md-layout md-gutter" >
       <div class="md-layout-item md-size-33" v-for="file in files">
         <md-card>
@@ -73,8 +74,10 @@
   import * as _ from 'lodash'
   import MdCardArea from "../../node_modules/vue-material/src/components/MdCard/MdCardArea/MdCardArea.vue";
   import MdCardContent from "../../node_modules/vue-material/src/components/MdCard/MdCardContent/MdCardContent.vue";
+
   const AWS = require('aws-sdk');
-  const credentials = require('../credentials.json');
+  const credentials = require('../credentials.json').AWS;
+
   AWS.config.credentials = new AWS.Credentials(credentials);;
   AWS.config.region = credentials.region;
 
@@ -102,6 +105,7 @@
       this.listObjects();
     },
     methods:{
+
       getTags(labels){
         return _.reduce(labels,(accumulator,label)=>{
           return `${accumulator} ${label.Name}, `
