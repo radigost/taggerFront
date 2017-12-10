@@ -3,6 +3,14 @@ import ShutterstockOAuth from '../shared/shutterstock-oauth';
 
 const credentials = require('../credentials.json').Shutterstock;
 
+const shutterstock = axios.create({
+  baseUrl: 'https://api.shutterstock.com/v2/',
+  auth: {
+    client_id: credentials.client_id,
+    client_secret: credentials.client_secret,
+  },
+});
+
 
 const myCallback = (callbackName, data) => {
   console.log(callbackName, data);
@@ -14,6 +22,7 @@ const myCallback = (callbackName, data) => {
       grant_type: 'authorization_code',
     },{
       headers:{
+        'Content-type': 'application/x-www-form-urlencoded',
         // 'Access-Control-Allow-Headers':'Access-Control-Allow-Headers'
         // 'Access-Control-Allow-Origin': '*'
       }
@@ -30,5 +39,23 @@ const auth = new ShutterstockOAuth({
   complete(data) { myCallback('complete', data); },
 });
 
-export default auth;
+const getImages = async (tags) => {
+  const query = _.map(tags, tag =>_.get(tag,'Name')) + '';
+  axios.get('https://api.shutterstock.com/v2/images/search',{
+    auth: {
+      username: credentials.client_id,
+      password: credentials.client_secret,
+    },
+    params: {
+      query:query
+    },
+  });
+
+};
+
+const shutterstockService = {
+  auth,getImages,
+};
+
+export default shutterstockService;
 

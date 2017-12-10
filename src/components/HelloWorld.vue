@@ -20,6 +20,7 @@
             <md-card-actions>
               <md-button @click="detectLabels(file.Key)">Распознать</md-button>
               <md-button @click="deleteImage(file.Key)"> Удалить</md-button>
+              <md-button @click="findShutterstockImages(file.labels)"> Найти похожие</md-button>
             </md-card-actions>
           </md-card-area>
           <md-card-area>
@@ -74,9 +75,11 @@
   import * as _ from 'lodash'
   import MdCardArea from "../../node_modules/vue-material/src/components/MdCard/MdCardArea/MdCardArea.vue";
   import MdCardContent from "../../node_modules/vue-material/src/components/MdCard/MdCardContent/MdCardContent.vue";
+  import shutterstockService from '../shared/shutterstockService'
 
   const AWS = require('aws-sdk');
   const credentials = require('../credentials.json').AWS;
+
 
   AWS.config.credentials = new AWS.Credentials(credentials);;
   AWS.config.region = credentials.region;
@@ -234,6 +237,9 @@
           console.error(err,err.stack);
         }
 
+      },
+      async findShutterstockImages(labels){
+        shutterstockService.getImages(labels);
       }
     }
   };

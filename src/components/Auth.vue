@@ -2,13 +2,13 @@
   <md-button @click="ShutterAuth">Авторизация</md-button>
 </template>
 <script>
-  import auth from '../shared/shutterstockService';
+  import shutterstockService from '../shared/shutterstockService';
 
 
   export default{
     methods:{
     ShutterAuth(){
-      auth.authorize();
+      shutterstockService.auth.authorize();
     },
   }
   }
