@@ -3,79 +3,73 @@
     <h1>Теггер v 0.1</h1>
 
     <div class ="md-layout md-gutter" >
-      <div class="md-layout-item md-size-33" v-for="file in files">
-        <md-card>
-          <md-card-area md-inset>
-            <md-card-media-cover md-text-scrim>
-              <!--<md-card-header-text>-->
-              <!--<div class="md-title">{{file.Key}}</div>-->
-              <!--<div class="md-subhead">Big size</div>-->
-              <!--</md-card-header-text>-->
-
-              <md-card-media style="max-width: 20em;">
-                <img :id="file.Key" :src="file.src">
-                <!--<img src="/assets/examples/cover.png" alt="People">-->
-              </md-card-media>
-            </md-card-media-cover>
-            <md-card-actions>
-              <md-button @click="detectLabels(file.Key)">Распознать</md-button>
-              <md-button @click="deleteImage(file.Key)"> Удалить</md-button>
-              <md-button @click="findShutterstockImages(file.labels)"> Найти похожие</md-button>
-            </md-card-actions>
-          </md-card-area>
-          <md-card-area>
-            <md-card-content>
-              <md-progress-spinner v-show="isLoading(file)" class="md-accent" md-mode="indeterminate"></md-progress-spinner>
-                <div >
+      <div class="md-layout-item " :class="getSize(file)" v-for="file in files">
+        <div class="md-layout">
+          <div class="md-layout-item " :class="getInnerSize(file)">
+            <md-card>
+              <md-card-area md-inset>
+                <md-card-media-cover md-text-scrim>
+                  <md-card-media style="max-width: 20em;">
+                    <img :id="file.Key" :src="file.src">
+                  </md-card-media>
+                </md-card-media-cover>
+                <md-card-actions>
+                  <md-button @click="detectLabels(file.Key)">Распознать</md-button>
+                  <md-button @click="deleteImage(file.Key)"> Удалить</md-button>
+                  <md-button @click="findShutterstockImages(file)"> Найти похожие</md-button>
+                </md-card-actions>
+              </md-card-area>
+              <md-card-area>
+                <md-card-content>
+                  <md-progress-spinner v-show="isLoading(file)" class="md-accent" md-mode="indeterminate"></md-progress-spinner>
+                  <div >
                   <span v-for="label in file.labels">
                     <md-chip class="md-primary" md-deletable >{{label.Name}}</md-chip>
                   </span>
-                </div>
+                  </div>
 
 
-            <!--<span>{{label.Name}} - {{label.Confidence.toFixed(2)}}%</span>,-->
-          <!--</span>-->
-            </md-card-content>
-          </md-card-area>
+                  <!--<span>{{label.Name}} - {{label.Confidence.toFixed(2)}}%</span>,-->
+                  <!--</span>-->
+                </md-card-content>
+              </md-card-area>
 
 
-          <md-card-content>
-            <!--<textarea :value="getTags(file.labels)"></textarea></md-card-content>-->
-            <md-field>
-              <!--<label>Textarea with Autogrow</label>-->
-              <md-textarea rows="7" :value="getTags(file.labels)"></md-textarea>
-            </md-field>
-          </md-card-content>
-        </md-card>
+              <md-card-content>
+                <!--<textarea :value="getTags(file.labels)"></textarea></md-card-content>-->
+                <md-field>
+                  <!--<label>Textarea with Autogrow</label>-->
+                  <md-textarea rows="7" :value="getTags(file.labels)"></md-textarea>
+                </md-field>
+              </md-card-content>
+            </md-card>
+          </div>
+          <div class="md-layout md-size-66" v-if="file && file.shutterStockImages">
+            <p>Всего найдено похожих - {{getProperty(file,'shutterStockImages.total_count')}} </p>
+            <md-card>
+              <div v-for="image in file.shutterStockImages.data">
+                {{image.description}}
+                <img :src="image.assets.small_thumb.url"/>
+              </div>
+            </md-card>
+          </div>
+        </div>
       </div>
       <div class="md-layout-item md-size-33">
-        <!--<p>File name:-->
           <input id="photoupload" type="file" name="imgfile" v-on:change="onFileChange" style="display: none;">
           <br>
           <md-button class="md-fab md-primary" onclick="document.getElementById('photoupload').click();">
             <md-icon>+</md-icon>
           </md-button>
-
-          <!--<md-button type="button" value="Browse..." onclick="document.getElementById('photoupload').click();" />-->
-
-        <!--</p>-->
       </div>
-
-
     </div>
-
-
-
-        <!--<button @click="buckets">ЗАЛИТЬ</button>-->
-
   </div>
 </template>
 
 <script>
   import * as _ from 'lodash'
-  import MdCardArea from "../../node_modules/vue-material/src/components/MdCard/MdCardArea/MdCardArea.vue";
-  import MdCardContent from "../../node_modules/vue-material/src/components/MdCard/MdCardContent/MdCardContent.vue";
   import shutterstockService from '../shared/shutterstockService'
+  import awsService from '../shared/awsService'
 
   const AWS = require('aws-sdk');
   const credentials = require('../credentials.json').AWS;
@@ -92,8 +86,7 @@
 
   export default {
     components: {
-      MdCardContent,
-      MdCardArea},
+      },
     name: 'HelloWorld',
     data() {
       return {
@@ -108,7 +101,15 @@
       this.listObjects();
     },
     methods:{
-
+      getProperty(elem,property){
+        return _.get(elem,`${property}`);
+      },
+      getInnerSize(file){
+        return file.size !== void 0 ? 'md-size-33' : 'md-size-100';
+      },
+      getSize(file){
+        return file.size !== void 0 ? file.size : 'md-size-33';
+      },
       getTags(labels){
         return _.reduce(labels,(accumulator,label)=>{
           return `${accumulator} ${label.Name}, `
@@ -238,8 +239,11 @@
         }
 
       },
-      async findShutterstockImages(labels){
-        shutterstockService.getImages(labels);
+      async findShutterstockImages(_file){
+        this.files = _.map(this.files,file=>_file.Key===file.Key ?  _.assign(file,{size:'md-size-100'}) : file);
+        const shutterStockImages  = await shutterstockService.getImages(_file.labels);
+        console.log(shutterStockImages);
+        this.files = _.map(this.files,file=>_file.Key===file.Key ?  _.assign(file,{shutterStockImages}) : file);
       }
     }
   };
