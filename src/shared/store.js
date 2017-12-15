@@ -2,16 +2,21 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import awsService from '../shared/awsService'
+import shutterstockService from './shutterstockService';
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
     files: [],
+    shutterStockImages:[],
   },
   mutations: {
     changeFiles(state,payload){
       state.files = payload;
+    },
+    changeImages(state,payload){
+      state.shutterStockImages = payload;
     },
   },
   actions: {
@@ -45,11 +50,21 @@ const store = new Vuex.Store({
         console.error(err);
       }
     },
-    async findShutterstockImages({ commit, state }, _file){
+    async findShutterstockImages({ commit, state,dispatch }, _file){
       const shutterStockImages = await awsService.findShutterstockImages(_file);
       const files = _.map(state.files, file => _file.Key === file.Key ?  _.assign(file, { shutterStockImages, size:'md-size-100' }) : file);
       commit('changeFiles', files);
+      _.forEach(shutterStockImages.data,(image) => {
+        dispatch('getImageInfo',{id: image.id,Key: _file.Key});
+      });
+
     },
+    async  getImageInfo({commit,state},params){
+      // const file = _.find(state.files,{Key:params.Key});
+      const res = await shutterstockService.getImageInfo(params.id);
+      let images = _.concat(state.shutterStockImages,res);
+      commit('changeImages',images);
+    }
   },
 });
 

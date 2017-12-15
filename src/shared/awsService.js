@@ -107,6 +107,7 @@ class AwsService {
   async findShutterstockImages(_file) {
     return shutterstockService.getImages(_file.labels);
   }
+
 }
 
 const awsService = new AwsService();

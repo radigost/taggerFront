@@ -1,0 +1,63 @@
+<template>
+    <div v-if="file && file.shutterStockImages" style="overflow-y:auto;">
+      <p>Всего найдено похожих - {{getProperty(file,'shutterStockImages.total_count')}} </p>
+        <div class="shutterstock__list">
+            <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
+              <div class="shutterstock__cell shutterstock__cell--image ">
+                <img :src="image.assets.small_thumb.url"/>
+              </div>
+              <div class="shutterstock__cell">
+                {{image.description}}
+              </div>
+              <div class="shutterstock__cell">
+                {{getImageKeywords(image.id)}}
+              </div>
+            </div>
+        </div>
+        <md-button>еще</md-button>
+
+    </div>
+</template>
+<script>
+  import MdTable from "../../node_modules/vue-material/src/components/mdTable/mdTable.vue";
+  import MdTableRow from "../../node_modules/vue-material/src/components/mdTable/mdTableRow.vue";
+  import MdTableCell from "../../node_modules/vue-material/src/components/mdTable/mdTableCell.vue";
+  import MdButton from "../../node_modules/vue-material/src/components/mdButton/mdButton.vue";
+
+  export default {
+    name: 'shutterstockList',
+    components:{
+      MdTable,
+      MdTableRow,
+      MdTableCell,
+      MdButton,
+    },
+    props:['id'],
+    computed:{
+      file(){
+        return _.find(this.$store.state.files,{Key:this.id});
+      },
+    },
+    methods:{
+      getProperty(elem,property){
+        return _.get(elem,`${property}`);
+      },
+      getImageKeywords(id){
+        return _.get(_.find(this.$store.state.shutterStockImages,{id}),'keywords')
+      }
+    }
+  }
+</script>
+
+<style>
+  .shutterstock__list{
+    display: flex;
+    flex-flow: column;
+  }
+  .shutterstock__row{
+   flex-flow: row;
+  }
+  .shutterstock__cell{
+    flex-basis: 33%;
+  }
+</style>
