@@ -1,5 +1,6 @@
 <template>
-  <!--<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">-->
+  <!-- <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic"> -->
+  <!-- <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"> -->
 
   <div id="app">
     <!--<img src="./assets/logo.png">-->

@@ -40,8 +40,8 @@ const auth = new ShutterstockOAuth({
 });
 
 const getImages = async (tags) => {
-  const query = _.map(tags, tag =>_.get(tag,'Name')) + '';
-  let res = {data:[]};
+  const query = _.map(tags, tag => _.get(tag,'Name')) + '';
+  let res = { data: [] };
   try {
     res = await axios.get('https://api.shutterstock.com/v2/images/search',{
       auth: {
