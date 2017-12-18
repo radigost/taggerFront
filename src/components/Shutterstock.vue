@@ -1,21 +1,22 @@
 <template>
     <div v-if="file && file.shutterStockImages" style="overflow-y:auto;">
       <p>Всего найдено похожих - {{getProperty(file,'shutterStockImages.total_count')}} </p>
-        <div class="shutterstock__list">
-            <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
-              <div class="shutterstock__cell shutterstock__cell--image ">
-                <img :src="image.assets.small_thumb.url"/>
-              </div>
-              <div class="shutterstock__cell">
-                {{image.description}}
-              </div>
-              <div class="shutterstock__cell">
-                {{getImageKeywords(image.id)}}
-              </div>
+      <div>
+          {{file.keywords}}
+      </div>
+      <div class="shutterstock__list">
+          <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
+            <div class="shutterstock__cell shutterstock__cell--image">
+              <img :src="getImage(image)"/>
             </div>
-        </div>
-        <md-button>еще</md-button>
-
+            <div class="shutterstock__cell">
+              {{image.description}}
+            </div>
+            <div class="shutterstock__cell">
+            </div>
+          </div>
+      </div>
+      <md-button>еще</md-button>
     </div>
 </template>
 <script>
@@ -42,8 +43,14 @@
       getProperty(elem,property){
         return _.get(elem,`${property}`);
       },
-      getImageKeywords(id){
-        return _.get(_.find(this.$store.state.shutterStockImages,{id}),'keywords')
+      getImageKeywords(Key){
+        return _.get(this.$store.state.shutterStockImages,'Key');
+      },
+      getImage(image){
+        return _.get(image,'assets.small_thumb.url');
+      },
+      sortedKeywords(list){
+        return Object.keys(list).sort(function(a,b){return list[a]-list[b]})
       }
     }
   }
