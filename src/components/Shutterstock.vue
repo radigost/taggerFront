@@ -13,6 +13,8 @@
               {{image.description}}
             </div>
             <div class="shutterstock__cell">
+              <md-button @click="getTags(image,file.Key)" :disabled="image.tagsTaken">Взять теги</md-button>
+              <md-button @click="removeTags(image,file.Key)" :disabled="!image.tagsTaken">Убрать теги</md-button>
             </div>
           </div>
       </div>
@@ -51,6 +53,20 @@
       },
       sortedKeywords(list){
         return Object.keys(list).sort(function(a,b){return list[a]-list[b]})
+      },
+      getTags(image,Key){
+        const params ={
+          id: image.id,
+          Key: Key
+        };
+        this.$store.dispatch('getImageInfo', params);
+      },
+      removeTags(image,Key){
+        const params ={
+          id: image.id,
+          Key: Key
+        };
+        this.$store.dispatch('removeImageInfo', params);
       }
     }
   }
@@ -62,6 +78,7 @@
     flex-flow: column;
   }
   .shutterstock__row{
+    display:flex;
    flex-flow: row;
   }
   .shutterstock__cell{

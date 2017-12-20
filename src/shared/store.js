@@ -18,6 +18,20 @@ const store = new Vuex.Store({
     changeImages(state, payload) {
       state.shutterStockImages[payload.Key] = payload.images;
     },
+    markTagsTaken(state, payload) {
+      state.files = _.map(state.files, (file) => {
+        console.log()
+        if (file.Key === payload.Key) {
+          file.shutterStockImages.data = _.map(file.shutterStockImages.data, (image) => {
+            if (_.isEqual(image.id,payload.id)) {
+              image = _.assign(image, { tagsTaken: payload.action });
+            }
+            return image;
+          });
+        }
+        return file;
+      });
+    },
     addKeywords(state, payload) {
       const updateKeywords = (file, keywords) => {
         _.forEach(keywords, (keyword) => {
@@ -25,13 +39,14 @@ const store = new Vuex.Store({
           if (_.isUndefined(_.get(file, ['keywords', keyword]))) {
             file.keywords[keyword] = 1;
           } else {
-            file.keywords[keyword]++;
+            file.keywords[keyword] += payload.action;
           }
         });
         return file;
       };
       const files = _.map(state.files, (file) => {
-        return file.Key !== payload.Key ? file : updateKeywords(file, payload.keywords);
+        if (file.Key === payload.Key) file = updateKeywords(file, payload.keywords);
+        return file;
       });
       state.files = files;
     },
@@ -55,7 +70,7 @@ const store = new Vuex.Store({
       commit('changeFiles', files);
       dispatch('detectLabels', uploaded.Key);
     },
-    async deleteImage({ commit, state }, key){
+    async deleteImage({ commit, state }, key) {
       try {
         await awsService.deleteImage(key);
         const files = _.reduce(state.files, (accumulator, file) => {
@@ -69,16 +84,23 @@ const store = new Vuex.Store({
     },
     async findShutterstockImages({ commit, state, dispatch }, _file) {
       const shutterStockImages = await awsService.findShutterstockImages(_file);
-      const files = _.map(state.files, file => _file.Key === file.Key ? _.assign(file, { shutterStockImages, size:'md-size-100' }) : file);
+      const files = _.map(state.files, file => _file.Key === file.Key ? _.assign(file, { shutterStockImages, size: 'md-size-100' }) : file);
       commit('changeFiles', files);
-      _.forEach(shutterStockImages.data, (image) => {
-        dispatch('getImageInfo', { id: image.id, Key: _file.Key });
-      });
+      // _.forEach(shutterStockImages.data, (image) => {
+      //   dispatch('getImageInfo', { id: image.id, Key: _file.Key });
+      // });
     },
     async  getImageInfo({ commit, state }, params) {
       const res = await shutterstockService.getImageInfo(params.id);
       const keywords = _.get(res, 'keywords');
-      commit('addKeywords', { keywords, Key: params.Key });
+      commit('addKeywords', { keywords, Key: params.Key, action: 1 });
+      commit('markTagsTaken', { id: params.id, Key: params.Key, action: true });
+    },
+    async removeImageInfo({ commit, state}, params){
+      const res = await shutterstockService.getImageInfo(params.id);
+      const keywords = _.get(res, 'keywords');
+      commit('addKeywords', { keywords, Key: params.Key, action: -1 });
+      commit('markTagsTaken', { id: params.id, Key: params.Key, action: false });
     },
   },
 });
