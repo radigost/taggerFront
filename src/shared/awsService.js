@@ -104,9 +104,9 @@ class AwsService {
     };
     return s3.deleteObject(params).promise();
   }
-  async findShutterstockImages(_file) {
-    return shutterstockService.getImages(_file.labels);
-  }
+  // async findShutterstockImages(_file, nextPage = 1) {
+  //   return shutterstockService.getImages(_file.labels, nextPage);
+  // }
 
 }
 

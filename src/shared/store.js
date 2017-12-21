@@ -55,6 +55,7 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    //aws
     async detectLabels({ commit, state }, name) {
       let files = _.map(state.files, file => file.Key === name ? _.assign(file, { loading: true }) : file);
       commit('changeFiles', files);
@@ -85,12 +86,27 @@ const store = new Vuex.Store({
         console.error(err);
       }
     },
-    async findShutterstockImages({ commit, state, dispatch }, _file) {
-      const shutterStockImages = await awsService.findShutterstockImages(_file);
-      const files = _.map(state.files, file => _file.Key === file.Key ? _.assign(file, { shutterStockImages, size: 'md-size-100' }) : file);
+
+    //shutterstock
+    async findShutterstockImages({ commit, state, dispatch }, params) {
+      const nextPage = params.page  ? params.page + 1 : 1;
+      const shutterStockImages = await shutterstockService.findShutterstockImages(params.file.labels, nextPage);
+      const files = _.map(state.files, (file) => {
+        const mergeData = (oldData, newData, reset = false) => {
+          if (!reset) newData.data = _.concat(_.get(oldData,'data',[]), newData.data);
+          return newData;
+        };
+        if (params.file.Key === file.Key) {
+          file = _.assign(file, {
+            shutterStockImages: mergeData(_.get(file, 'shutterStockImages',{}), shutterStockImages, params.reset),
+            size: 'md-size-100',
+          });
+        }
+        return file;
+      });
       commit('changeFiles', files);
     },
-    async  getImageInfo({ commit, state }, params) {
+    async  getShutterstockImageInfo({ commit, state }, params) {
       const res = await shutterstockService.getImageInfo(params.id);
       const keywords = _.get(res, 'keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
