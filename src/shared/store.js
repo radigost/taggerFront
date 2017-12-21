@@ -40,6 +40,9 @@ const store = new Vuex.Store({
             file.keywords[keyword] = 1;
           } else {
             file.keywords[keyword] += payload.action;
+            if (file.keywords[keyword] === 0) {
+              file.keywords = _.omit(file.keywords,keyword);
+            }
           }
         });
         return file;
@@ -86,9 +89,6 @@ const store = new Vuex.Store({
       const shutterStockImages = await awsService.findShutterstockImages(_file);
       const files = _.map(state.files, file => _file.Key === file.Key ? _.assign(file, { shutterStockImages, size: 'md-size-100' }) : file);
       commit('changeFiles', files);
-      // _.forEach(shutterStockImages.data, (image) => {
-      //   dispatch('getImageInfo', { id: image.id, Key: _file.Key });
-      // });
     },
     async  getImageInfo({ commit, state }, params) {
       const res = await shutterstockService.getImageInfo(params.id);
