@@ -18,9 +18,41 @@ const store = new Vuex.Store({
     changeImages(state, payload) {
       state.shutterStockImages[payload.Key] = payload.images;
     },
+    addTagForFile(state,payload){
+      state.files = _.map(state.files, (file) => {
+        if (file.Key === payload.Key) {
+          const newLabels = _.trim(_.get(payload,'value','')).split(',');
+          if (newLabels.length > 1) {
+            file.labels = _.map(newLabels, (value) => ({ Name: _.trim(value) }));
+          } else {
+            file.labels.push({ Name: payload.value });
+          }
+        }
+        return file;
+      });
+    },
+    removeTagForFile(state,payload){
+      state.files = _.map(state.files, (file) => {
+        if (file.Key === payload.Key) {
+          file.labels = _.remove(file.labels, (label)=> label.Name !== payload.value);
+        }
+        return file;
+      });
+    },
+    changeTagsForFile(state,payload) {
+      state.files = _.map(state.files, (file) => {
+        if (file.Key === payload.Key) {
+          const newLabels = _.trim(_.get(payload,'value','')).split(',');
+          if (newLabels.length > 1) {
+            file.labels = _.map(newLabels, (value) => ({ Name: _.trim(value) }));
+          }
+        }
+        return file;
+      });
+    },
     markTagsTaken(state, payload) {
       state.files = _.map(state.files, (file) => {
-        console.log()
+
         if (file.Key === payload.Key) {
           file.shutterStockImages.data = _.map(file.shutterStockImages.data, (image) => {
             if (_.isEqual(image.id,payload.id)) {
@@ -112,7 +144,7 @@ const store = new Vuex.Store({
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: true });
     },
-    async removeImageInfo({ commit, state}, params){
+    async removeImageTags({ commit, state}, params){
       const res = await shutterstockService.getImageInfo(params.id);
       const keywords = _.get(res, 'keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: -1 });

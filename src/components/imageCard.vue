@@ -6,27 +6,34 @@
               <img style="width:60em;" :id="file.Key" :src="file.src">
             </md-card-media>
             <md-card-actions>
+              <md-button @click="getExif(file)" style="width:auto;"> Получить метаданные</md-button>
+            </md-card-actions>
+            <md-card-actions>
+
               <md-button @click="detectLabels(file.Key)" style="width:auto;">Распознать</md-button>
               <md-button @click="deleteImage(file.Key)" style="width:auto;"> Удалить</md-button>
               <md-button @click="findShutterstockImages(file)" style="width:auto;"> Найти похожие</md-button>
+
             </md-card-actions>
           </md-card-area>
           <md-card-area>
             <md-card-content>
               <md-progress md-indeterminate  v-show="isLoading(file)"></md-progress>
-                <md-input-container v-show="!isLoading(file)">
-                  <md-textarea rows="7" :value="getTags(file.labels)"></md-textarea>
-                </md-input-container>
+                <div v-for="tag in file.labels">{{tag.Name}}<button @click="removeTag(tag.Name,file.Key)">X</button></div>
+                <div><input v-model="toAdd" type="text"/><button @click="addTag(toAdd,file.Key)"> +</button></div>
+                <div v-show="!isLoading(file)">
+                  <textarea rows="7" :value="getTags(file.labels)" disabled></textarea>
+                </div>
             </md-card-content>
           </md-card-area>
         </md-card>
-
       </div>
 </template>
 
 <script>
   import MdCardHeader from "../../node_modules/vue-material/src/components/mdCard/mdCardHeader.vue";
   import MdButton from "../../node_modules/vue-material/src/components/mdButton/mdButton.vue";
+  import piexif from "piexifjs"
 
   export default {
     components: {
@@ -56,6 +63,12 @@
           return `${accumulator} ${label.Name}, `
         }," ")
       },
+      addTag(value,Key){
+        this.$store.commit('addTagForFile',{Key,value});
+      },
+      removeTag(value,Key){
+        this.$store.commit('removeTagForFile',{Key,value});
+      },
       findShutterstockImages(file){
         this.$store.dispatch('findShutterstockImages', { file, reset: true})
       },
@@ -64,6 +77,15 @@
       },
       detectLabels(name){
         this.$store.dispatch('detectLabels',name)
+      },
+      getExif(file){
+        console.log(file);
+        EXIF.getTag();
+
+        const exifObj = piexif.load(file.src);
+        console.log(exifObj);
+
+
       }
     }
   }
@@ -73,6 +95,7 @@
     flex: 1;
     flex-basis: 33%;
     max-height: 60em;
+    margin-bottom: 5em;
   }
 </style>
 
