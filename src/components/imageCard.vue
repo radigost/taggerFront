@@ -7,6 +7,8 @@
             </md-card-media>
             <md-card-actions>
               <md-button @click="getExif(file)" style="width:auto;"> Получить метаданные</md-button>
+              <md-button @click="setExif(file,{keywords:getTags(file.labels)})" style="width:auto;">Записать метаданные</md-button>
+
             </md-card-actions>
             <md-card-actions>
 
@@ -78,12 +80,59 @@
       detectLabels(name){
         this.$store.dispatch('detectLabels',name)
       },
-      getExif(file){
-        console.log(file);
-        EXIF.getTag();
+      setExif(file, options){
+        const exifObj = piexif.load(file.src);
+        exifObj["0th"][piexif.ImageIFD.XPKeywords]=toUTF8Array(options.keywords);
+        delete exifObj['thumbnail'];
+        const exifStr  = piexif.dump(exifObj);
+        const newData = piexif.insert(exifStr , file.src);
+        // const newJpeg = new Buffer(newData, "binary");
+        // console.log(newData);
+        file.src = newData;
+        console.log('writed!');
 
+
+        function toUTF8Array(str) {
+          var utf8 = [];
+          for (var i=0; i < str.length; i++) {
+            var charcode = str.charCodeAt(i);
+            if (charcode < 0x80) utf8.push(charcode);
+            else if (charcode < 0x800) {
+              utf8.push(0xc0 | (charcode >> 6),
+                0x80 | (charcode & 0x3f));
+            }
+            else if (charcode < 0xd800 || charcode >= 0xe000) {
+              utf8.push(0xe0 | (charcode >> 12),
+                0x80 | ((charcode>>6) & 0x3f),
+                0x80 | (charcode & 0x3f));
+            }
+            // surrogate pair
+            else {
+              i++;
+              // UTF-16 encodes 0x10000-0x10FFFF by
+              // subtracting 0x10000 and splitting the
+              // 20 bits of 0x0-0xFFFFF into two halves
+              charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+                | (str.charCodeAt(i) & 0x3ff))
+              utf8.push(0xf0 | (charcode >>18),
+                0x80 | ((charcode>>12) & 0x3f),
+                0x80 | ((charcode>>6) & 0x3f),
+                0x80 | (charcode & 0x3f));
+            }
+          }
+          const res = [];
+          _.forEach(utf8,(element)=>{
+            res.push(element);
+            res.push(0);
+          })
+          return res;
+        }
+      },
+      getExif(file){
+        // console.log(file.src);
         const exifObj = piexif.load(file.src);
         console.log(exifObj);
+
 
 
       }
