@@ -7,7 +7,7 @@
             </md-card-media>
             <md-card-actions>
               <md-button @click="getExif(file)" style="width:auto;"> Получить метаданные</md-button>
-              <md-button @click="setExif(file,{keywords:getTags(file.labels)})" style="width:auto;">Записать метаданные</md-button>
+              <md-button @click="setExif(file,{keywords:getTags(file.labels),description:file.description})" style="width:auto;">Записать метаданные</md-button>
 
             </md-card-actions>
             <md-card-actions>
@@ -21,11 +21,12 @@
           <md-card-area>
             <md-card-content>
               <md-progress md-indeterminate  v-show="isLoading(file)"></md-progress>
-                <div v-for="tag in file.labels">{{tag.Name}}<button @click="removeTag(tag.Name,file.Key)">X</button></div>
-                <div><input v-model="toAdd" type="text"/><button @click="addTag(toAdd,file.Key)"> +</button></div>
-                <div v-show="!isLoading(file)">
-                  <textarea rows="7" :value="getTags(file.labels)" disabled></textarea>
-                </div>
+              <input type="text" v-model="file.description"/>
+              <div v-for="tag in file.labels">{{tag.Name}}<button @click="removeTag(tag.Name,file.Key)">X</button></div>
+              <div><input v-model="toAdd" type="text"/><button @click="addTag(toAdd,file.Key)"> +</button></div>
+              <div v-show="!isLoading(file)">
+                <textarea rows="7" :value="getTags(file.labels)" disabled></textarea>
+              </div>
             </md-card-content>
           </md-card-area>
         </md-card>
@@ -82,15 +83,15 @@
       },
       setExif(file, options){
         const exifObj = piexif.load(file.src);
-        exifObj["0th"][piexif.ImageIFD.XPKeywords]=toUTF8Array(options.keywords);
-        delete exifObj['thumbnail'];
-        const exifStr  = piexif.dump(exifObj);
-        const newData = piexif.insert(exifStr , file.src);
-        // const newJpeg = new Buffer(newData, "binary");
-        // console.log(newData);
-        file.src = newData;
-        console.log('writed!');
-
+        try {
+          if (_.get(options,'keywords')) exifObj["0th"][piexif.ImageIFD.XPKeywords]=toUTF8Array(options.keywords);
+          if(_.get(options,'description')) exifObj["0th"][piexif.ImageIFD.ImageDescription]=options.description;
+          delete exifObj['thumbnail'];
+          const exifStr  = piexif.dump(exifObj);
+          file.src = piexif.insert(exifStr , file.src);
+        } catch(err){
+          console.error(err);
+        }
 
         function toUTF8Array(str) {
           var utf8 = [];
@@ -129,12 +130,8 @@
         }
       },
       getExif(file){
-        // console.log(file.src);
         const exifObj = piexif.load(file.src);
         console.log(exifObj);
-
-
-
       }
     }
   }
