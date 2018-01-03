@@ -3,7 +3,7 @@
         <md-card md-with-hover>
           <md-card-area md-inset>
             <md-card-media >
-              <img style="width:60em;" :id="file.Key" :src="file.src">
+              <img class="image-card__image" :id="file.Key" :src="file.src">
             </md-card-media>
             <md-card-actions>
               <md-button @click="getExif(file)" style="width:auto;"> Получить метаданные</md-button>
@@ -138,10 +138,18 @@
 </script>
 <style>
   .list__card{
+    /*position: sticky;*/
+    /*top:2em;*/
     flex: 1;
     flex-basis: 33%;
     max-height: 60em;
     margin-bottom: 5em;
+  }
+
+  .image-card__image{
+    width:30em;
+    max-height: 60em;
+    overflow: hidden;
   }
 </style>
 

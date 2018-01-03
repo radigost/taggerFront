@@ -1,9 +1,6 @@
 <template>
-  <!-- <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic"> -->
-  <!-- <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"> -->
-
   <div id="app">
-    <!--<img src="./assets/logo.png">-->
+    <router-link to="/">Home</router-link>
     <router-view/>
   </div>
 </template>
@@ -15,6 +12,8 @@
 </script>
 
 <style>
+  @import  url('http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic');
+  @import  url('http://fonts.googleapis.com/icon?family=Material+Icons') ;
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

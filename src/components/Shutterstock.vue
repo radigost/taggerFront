@@ -12,7 +12,7 @@
       <div class="shutterstock__list">
         <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
           <div class="shutterstock__cell shutterstock__cell--image">
-            <img :src="getImage(image)"/>
+            <img :src="getImage(image)" />
           </div>
           <div class="shutterstock__cell">
             {{image.description}}
@@ -106,7 +106,7 @@
   .list__shutterstock{
     flex: 1;
     flex-basis: 77%;
-    max-height: 60em;
+    max-height: 90vh;
     overflow-y: scroll;
   }
   .shutterstock__list{

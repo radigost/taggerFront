@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import HelloWorld from '@/components/HelloWorld';
+import Home from '@/components/Home';
 import Auth from '@/components/Auth';
+import Detail from '@/components/Detail';
 
 Vue.use(Router);
 
@@ -9,8 +10,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld,
+      name: 'Home',
+      component: Home,
+    },
+    {
+      path:'/details/:key',
+      name:'Detail',
+      component:Detail
     },
     {
       path: '/auth',

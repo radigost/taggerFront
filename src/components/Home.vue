@@ -1,17 +1,7 @@
 <template>
   <div class="hello">
     <h1>Теггер v 0.1</h1>
-
-    <div class ="md-layout md-gutter" >
       <card-list/>
-
-      <div class="md-layout-item md-size-33">
-          <input id="photoupload" type="file" name="imgfile" v-on:change="onFileChange" style="display: none;">
-          <br>
-          <md-button class="md-fab md-primary" onclick="document.getElementById('photoupload').click();">
-            <md-icon>Добавить фото</md-icon>
-          </md-button>
-      </div>
     </div>
   </div>
 </template>
@@ -20,7 +10,6 @@
   import * as _ from 'lodash'
   import awsService from '../shared/awsService'
   import CardList from './CardList.vue'
-
 
   export default {
     components: {
