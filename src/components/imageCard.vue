@@ -12,7 +12,9 @@ npm<template>
             </md-card-actions>
             <md-card-actions>
               <md-button @click="detectLabels(file.Key)" style="width:auto;">Распознать</md-button>
-              <md-button @click="deleteImage(file.Key)" style="width:auto;"> Удалить</md-button>
+              <md-button @click="deleteImage(file.Key)" style="width:auto;">
+                <md-icon>delete</md-icon>
+              </md-button>
               <md-button @click="findShutterstockImages(file)" style="width:auto;"> Найти похожие</md-button>
             </md-card-actions>
           </md-card-area>
@@ -50,12 +52,6 @@ npm<template>
       },
     },
     methods:{
-      getSize(file){
-        return file.size !== void 0 ? file.size : 'md-size-33';
-      },
-      getInnerSize(file){
-        return file.size !== void 0 ? 'md-size-33' : 'md-size-100';
-      },
       isLoading(file){
         return file.loading;
       },
@@ -149,6 +145,10 @@ npm<template>
     width:30em;
     max-height: 60em;
     overflow: hidden;
+  }
+
+  .image-card__chips{
+    display: flex;
   }
 </style>
 
