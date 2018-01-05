@@ -1,4 +1,4 @@
-<template>
+npm<template>
       <div class="list__card">
         <md-card md-with-hover>
           <md-card-area md-inset>
@@ -11,16 +11,15 @@
 
             </md-card-actions>
             <md-card-actions>
-
               <md-button @click="detectLabels(file.Key)" style="width:auto;">Распознать</md-button>
               <md-button @click="deleteImage(file.Key)" style="width:auto;"> Удалить</md-button>
               <md-button @click="findShutterstockImages(file)" style="width:auto;"> Найти похожие</md-button>
-
             </md-card-actions>
           </md-card-area>
           <md-card-area>
             <md-card-content>
               <md-progress md-indeterminate  v-show="isLoading(file)"></md-progress>
+              <label>Заголовок</label>
               <input type="text" v-model="file.description"/>
               <div v-for="tag in file.labels">{{tag.Name}}<button @click="removeTag(tag.Name,file.Key)">X</button></div>
               <div><input v-model="toAdd" type="text"/><button @click="addTag(toAdd,file.Key)"> +</button></div>

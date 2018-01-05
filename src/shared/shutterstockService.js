@@ -39,7 +39,7 @@ const auth = new ShutterstockOAuth({
   complete(data) { myCallback('complete', data); },
 });
 
-const findShutterstockImages = async (tags, page = 1) => {
+const findShutterstockImages = async (tags, page = 1, category='13') => {
   const query = _.map(tags, tag => _.get(tag,'Name')) + '';
   let res = { data: [] };
   try {
@@ -51,6 +51,8 @@ const findShutterstockImages = async (tags, page = 1) => {
       params: {
         query,
         page,
+        sort:'relevance',
+        category,
       },
     });
   } catch (err) {
