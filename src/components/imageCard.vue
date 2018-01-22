@@ -153,11 +153,19 @@ npm<template>
     max-height: 60em;
     margin-bottom: 5em;
   }
-
+  .md-card .md-card-media img{
+    object-fit: cover; /* Do not scale the image */
+    object-position: center; /* Center the image within the element */
+    max-height: 30em;
+    max-width: 30em;
+    /*height: 20em;*/
+    /*width: 20em;*/
+    border-radius: 1em;
+    margin: 1em;
+    /*width:auto;*/
+  }
   .image-card__image{
-    width:30em;
-    max-height: 60em;
-    overflow: hidden;
+
   }
 
   .image-card__chips{
