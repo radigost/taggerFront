@@ -64,7 +64,7 @@ npm<template>
     components: {
       MdButton,
       MdCardHeader,
-      TagPopover
+      TagPopover,
     },
     name: 'imageCard',
     props: ['id'],

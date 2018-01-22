@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="list list__inner">
-      <div class="list__row" >
+      <div v-show="!loading" class="list__row" >
         <div class="list__image" v-for="file in files" :key="file.Key">
           <a @click="goToDetails(file.Key)" >
             <img :id="file.Key" :src="file.src">
@@ -18,6 +18,9 @@
           </md-button>
         </div>
       </div>
+      <div v-show="loading">
+        <md-progress md-indeterminate></md-progress>
+      </div>
     </div>
 
   </div>
@@ -26,17 +29,22 @@
 import ShutterstockList from './Shutterstock.vue';
 import imageCard from './imageCard.vue';
 import MdButton from "../../node_modules/vue-material/src/components/mdButton/mdButton.vue";
+import MdProgress from "../../node_modules/vue-material/src/components/mdProgress/mdProgress.vue";
 
 export default {
   components: {
     ShutterstockList,
     imageCard,
     MdButton,
+    MdProgress,
   },
   name: 'cardList',
   computed: {
     files() {
       return this.$store.state.files;
+    },
+    loading(){
+      return this.$store.state.loadingImageList;
     },
   },
   methods: {
@@ -64,6 +72,7 @@ export default {
     display: flex;
     flex-flow: row;
     margin-left:2em;
+    flex-wrap: wrap;
   }
   .list__image{
     overflow: hidden;

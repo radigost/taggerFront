@@ -10,6 +10,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     files: [],
+    loadingImageList: false,
   },
   mutations: {
     changeFiles(state, payload) {
@@ -18,12 +19,12 @@ const store = new Vuex.Store({
     changeImages(state, payload) {
       state.shutterStockImages[payload.Key] = payload.images;
     },
-    addTagForFile(state, payload){
+    addTagForFile(state, payload) {
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          const newLabels = _.trim(_.get(payload,'value','')).split(',');
+          const newLabels = _.trim(_.get(payload, 'value', '')).split(',');
           if (newLabels.length > 1) {
-            file.labels = _.map(newLabels, (value) => ({ Name: _.trim(value) }));
+            file.labels = _.map(newLabels, value => ({ Name: _.trim(value) }));
           } else {
             file.labels.push({ Name: payload.value });
           }
@@ -32,10 +33,10 @@ const store = new Vuex.Store({
       });
     },
     removeTagForFile(state, payload) {
-      console.log(state,payload);
+      console.log(state, payload);
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          file.labels = _.remove(file.labels, (label) => label.Name !== payload.value);
+          file.labels = _.remove(file.labels, label => label.Name !== payload.value);
         }
         return file;
       });
@@ -43,9 +44,9 @@ const store = new Vuex.Store({
     changeTagsForFile(state, payload) {
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          const newLabels = _.trim(_.get(payload,'value','')).split(',');
+          const newLabels = _.trim(_.get(payload, 'value', '')).split(',');
           if (newLabels.length > 1) {
-            file.labels = _.map(newLabels, (value) => ({ Name: _.trim(value) }));
+            file.labels = _.map(newLabels, value => ({ Name: _.trim(value) }));
           }
         }
         return file;
@@ -53,10 +54,9 @@ const store = new Vuex.Store({
     },
     markTagsTaken(state, payload) {
       state.files = _.map(state.files, (file) => {
-
         if (file.Key === payload.Key) {
           file.shutterStockImages.data = _.map(file.shutterStockImages.data, (image) => {
-            if (_.isEqual(image.id,payload.id)) {
+            if (_.isEqual(image.id, payload.id)) {
               image = _.assign(image, { tagsTaken: payload.action });
             }
             return image;
@@ -74,7 +74,7 @@ const store = new Vuex.Store({
           } else {
             file.keywords[keyword] += payload.action;
             if (file.keywords[keyword] === 0) {
-              file.keywords = _.omit(file.keywords,keyword);
+              file.keywords = _.omit(file.keywords, keyword);
             }
           }
         });
@@ -86,9 +86,12 @@ const store = new Vuex.Store({
       });
       state.files = files;
     },
+    changeLoadingImageState(state, isLoading) {
+      state.loadingImageList = isLoading;
+    },
   },
   actions: {
-    //aws
+    // aws
     async detectLabels({ commit, state }, name) {
       let files = _.map(state.files, file => file.Key === name ? _.assign(file, { loading: true }) : file);
       commit('changeFiles', files);
@@ -97,13 +100,17 @@ const store = new Vuex.Store({
       commit('changeFiles', files);
     },
     async listObjects({ commit, dispatch }) {
+      commit('changeLoadingImageState', true);
       const files = await awsService.listObjects();
       commit('changeFiles', files);
+      commit('changeLoadingImageState', false);
       _.forEach(files, file => dispatch('detectLabels', file.Key));
     },
     async uploadFile({ commit, state, dispatch }, file) {
+      commit('changeLoadingImageState', true);
       const uploaded = await awsService.upload(file);
       const files = _.concat(state.files, uploaded);
+      commit('changeLoadingImageState', false);
       commit('changeFiles', files);
       dispatch('detectLabels', uploaded.Key);
     },
@@ -120,18 +127,18 @@ const store = new Vuex.Store({
       }
     },
 
-    //shutterstock
+    // shutterstock
     async findShutterstockImages({ commit, state, dispatch }, params) {
-      const nextPage = params.page  ? params.page + 1 : 1;
+      const nextPage = params.page ? params.page + 1 : 1;
       const shutterStockImages = await shutterstockService.findShutterstockImages(params.file.labels, nextPage);
       const files = _.map(state.files, (file) => {
         const mergeData = (oldData, newData, reset = false) => {
-          if (!reset) newData.data = _.concat(_.get(oldData,'data',[]), newData.data);
+          if (!reset) newData.data = _.concat(_.get(oldData, 'data', []), newData.data);
           return newData;
         };
         if (params.file.Key === file.Key) {
           file = _.assign(file, {
-            shutterStockImages: mergeData(_.get(file, 'shutterStockImages',{}), shutterStockImages, params.reset),
+            shutterStockImages: mergeData(_.get(file, 'shutterStockImages', {}), shutterStockImages, params.reset),
             size: 'md-size-100',
           });
         }
@@ -145,7 +152,7 @@ const store = new Vuex.Store({
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: true });
     },
-    async removeImageTags({ commit, state}, params){
+    async removeImageTags({ commit, state }, params) {
       const res = await shutterstockService.getImageInfo(params.id);
       const keywords = _.get(res, 'keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: -1 });
