@@ -18,7 +18,7 @@ const store = new Vuex.Store({
     changeImages(state, payload) {
       state.shutterStockImages[payload.Key] = payload.images;
     },
-    addTagForFile(state,payload){
+    addTagForFile(state, payload){
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
           const newLabels = _.trim(_.get(payload,'value','')).split(',');
@@ -31,15 +31,16 @@ const store = new Vuex.Store({
         return file;
       });
     },
-    removeTagForFile(state,payload){
+    removeTagForFile(state, payload) {
+      console.log(state,payload);
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          file.labels = _.remove(file.labels, (label)=> label.Name !== payload.value);
+          file.labels = _.remove(file.labels, (label) => label.Name !== payload.value);
         }
         return file;
       });
     },
-    changeTagsForFile(state,payload) {
+    changeTagsForFile(state, payload) {
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
           const newLabels = _.trim(_.get(payload,'value','')).split(',');

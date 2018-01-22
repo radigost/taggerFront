@@ -6,8 +6,12 @@ import  VueMaterial from 'vue-material';
 import Vue from 'vue';
 
 import App from './App';
-import store from './shared/store'
+import store from './shared/store';
 import router from './router';
+
+import VTooltip from 'v-tooltip'
+
+Vue.use(VTooltip);
 
 
 Vue.config.productionTip = true;

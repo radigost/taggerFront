@@ -32,7 +32,18 @@ npm<template>
                 <input class="image-card__input" type="text" v-model="file.description"/>
                 <!--<div v-for="tag in file.labels">{{tag.Name}}<button @click="removeTag(tag.Name,file.Key)">X</button></div>-->
                 <label>Тэги</label>
-                <textarea class="image-card__input image-card__input--textarea" rows="7" :value="getTags(file.labels)" disabled></textarea>
+                <div class="image-card__input image-card__input--textarea" rows="7"  disabled>
+                  <div class="popover-container" v-for="label in file.labels">
+                    <v-popover>
+                      <a>{{label.Name}},&nbsp</a>
+                      <template slot="popover">
+                        <tag-popover :tag="label" :Key="file.Key"/>
+                      </template>
+                    </v-popover>
+                  </div>
+
+                </div>
+
                 <md-button class="align-left" @click="setExif(file,{keywords:getTags(file.labels),description:file.description})" style="width:auto;">Записать данные</md-button>
                 <md-button @click="downloadFile(file.src)" class="align-left">Скачать</md-button>
               </div>
@@ -46,12 +57,14 @@ npm<template>
 <script>
   import MdCardHeader from "../../node_modules/vue-material/src/components/mdCard/mdCardHeader.vue";
   import MdButton from "../../node_modules/vue-material/src/components/mdButton/mdButton.vue";
-  import piexif from "piexifjs"
+  import piexif from "piexifjs";
+  import TagPopover from './TagPopover';
 
   export default {
     components: {
       MdButton,
       MdCardHeader,
+      TagPopover
     },
     name: 'imageCard',
     props: ['id'],
@@ -188,6 +201,8 @@ npm<template>
     border: 1px solid lightgray;
     padding-top:1em;
     padding-left: 0.5em;
+    display: flex;
+    flex-direction: row;
   }
 
   .image-card__hr{
@@ -198,6 +213,37 @@ npm<template>
 
   .align-left{
     align-self: right;
+  }
+
+  .popover-container{
+    display: flex;
+    flex-direction: row;
+    flex-basis: 10%;
+  }
+  .tooltip {
+    z-index: 2;
+    margin-left: 20em;
+    background-color: #fafafa;
+    border-radius: 0.5em;
+    border: 1px solid #2c3e50;
+    padding: 0.5em;
+
+  }
+  .tooltip .popover {
+     color: #f9f9f9;
+
+  }
+  .tooltip .popover .popover-inner {
+    /*background:#f9f9f9;*/
+    /*color: black;*/
+    /*padding: 24px;*/
+    /*border-radius: 5px;*/
+    /*box-shadow: 0 5px 30px rgba(black, .1);*/
+  }
+
+  .tooltip .popover .popover-arrow {
+    border-color: #f9f9f9;
+    z-index: 1;
   }
 
 </style>
