@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import awsService from '../shared/awsService';
+import imageService from './imageService';
 import shutterstockService from './shutterstockService';
 
 Vue.use(Vuex);
@@ -95,28 +95,29 @@ const store = new Vuex.Store({
     async detectLabels({ commit, state }, name) {
       let files = _.map(state.files, file => file.Key === name ? _.assign(file, { loading: true }) : file);
       commit('changeFiles', files);
-      const labels = await awsService.detectLabels(name);
+      const labels = await imageService.detectLabels(name);
       files = _.map(state.files, file => file.Key === name ? _.assign(file, { labels, loading: false }) : file);
       commit('changeFiles', files);
     },
     async listObjects({ commit, dispatch }) {
       commit('changeLoadingImageState', true);
-      const files = await awsService.listObjects();
+      const files = await imageService.listObjects();
       commit('changeFiles', files);
       commit('changeLoadingImageState', false);
       _.forEach(files, file => dispatch('detectLabels', file.Key));
     },
     async uploadFile({ commit, state, dispatch }, file) {
       commit('changeLoadingImageState', true);
-      const uploaded = await awsService.upload(file);
+      const uploaded = await imageService.upload(file);
       const files = _.concat(state.files, uploaded);
+      console.log(files);
       commit('changeLoadingImageState', false);
       commit('changeFiles', files);
       dispatch('detectLabels', uploaded.Key);
     },
     async deleteImage({ commit, state }, key) {
       try {
-        await awsService.deleteImage(key);
+        await imageService.deleteImage(key);
         const files = _.reduce(state.files, (accumulator, file) => {
           if (file.Key !== key) accumulator.push(file);
           return accumulator;
