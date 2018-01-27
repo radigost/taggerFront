@@ -1,7 +1,7 @@
 import axios from 'axios';
-import ShutterstockOAuth from '../shared/shutterstock-oauth';
+import ShutterstockOAuth from './shutterstock-oauth';
 
-const credentials = require('../credentials.json').Shutterstock;
+const credentials = require('../../credentials.json').Shutterstock;
 
 const shutterstock = axios.create({
   baseUrl: 'https://api.shutterstock.com/v2/',

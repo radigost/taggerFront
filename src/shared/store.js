@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
-import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import imageService from './imageService';
+import {shutterstock} from './http';
 
 Vue.use(Vuex);
 
@@ -133,7 +133,7 @@ const store = new Vuex.Store({
     async findShutterstockImages({ commit, state, dispatch }, params) {
       const page = params.page ? params.page + 1 : 1;
       const query = _.map(params.file.labels, tag => _.get(tag,'Name')) + '';
-      const shutterStockImages = await axios.get('http://localhost:3000/stocks/sutterstock/images',{
+      const shutterStockImages = await shutterstock.get('/',{
         params:{query,page}
       });
 
@@ -154,13 +154,13 @@ const store = new Vuex.Store({
     },
 
     async  getShutterstockImageInfo({ commit, state }, params) {
-      const res = await axios.get(`http://localhost:3000/stocks/sutterstock/images/${params.id}`);
+      const res = await shutterstock.get(`/${params.id}`);
       const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: true });
     },
     async removeImageTags({ commit, state }, params) {
-      const res = await axios.get(`http://localhost:3000/stocks/sutterstock/images/${params.id}`);
+      const res = await shutterstock.get(`/${params.id}`);
       const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: -1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: false });

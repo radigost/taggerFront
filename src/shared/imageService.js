@@ -1,27 +1,15 @@
-import axios from 'axios';
+import {images} from './http';
 
-class ImageService {
-  constructor() {
-    Object.assign(this, {
-      init: false,
-      pending: false,
-      _files: [],
-    });
-  }
-
-  get files() {
-    return this._files;
-  }
-
+const imageService ={
   async listObjects() {
-    const files = await axios.get('http://localhost:3000/images');
+    const files = await images.get('/');
     return files.data;
-  }
+  },
 
   async deleteImage(key) {
-    const files = await axios.delete(`http://localhost:3000/images/${key}`);
+    const files = await images.delete(`/${key}`);
     return files.data;
-  }
+  },
 
   async upload(file) {
     let data = new FormData();
@@ -29,27 +17,23 @@ class ImageService {
     const config = {
       headers: { 'Content-Type': 'multipart/form-data' }
     };
-    const res = await  axios.post('http://localhost:3000/images', data, config) ;
+    const res = await  images.post('/', data, config) ;
     return this._getImage(res.data);
-  }
+  },
 
   async detectLabels(name) {
     try {
-      const files = await axios.get(`http://localhost:3000/images/${name}/rekognize`);
+      const files = await images.get(`/${name}/rekognize`);
       return files.data;
     } catch (err) {
       console.error(err, err.stack);
       return [];
     }
-  }
+  },
 
   async _getImage(image) {
-    const data = await  axios.get(`http://localhost:3000/images/${image.Key}`) ;
+    const data = await  images.get(`/${image.Key}`) ;
     return data.data;
-  }
-
-
-}
-
-const imageService = new ImageService();
+  },
+};
 export default imageService;
