@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 import _ from 'lodash';
+import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import imageService from './imageService';
-import shutterstockService from './shutterstockService';
 
 Vue.use(Vuex);
 
@@ -129,9 +129,14 @@ const store = new Vuex.Store({
     },
 
     // shutterstock
+    // moved
     async findShutterstockImages({ commit, state, dispatch }, params) {
-      const nextPage = params.page ? params.page + 1 : 1;
-      const shutterStockImages = await shutterstockService.findShutterstockImages(params.file.labels, nextPage);
+      const page = params.page ? params.page + 1 : 1;
+      const query = _.map(params.file.labels, tag => _.get(tag,'Name')) + '';
+      const shutterStockImages = await axios.get('http://localhost:3000/stocks/sutterstock/images',{
+        params:{query,page}
+      });
+
       const files = _.map(state.files, (file) => {
         const mergeData = (oldData, newData, reset = false) => {
           if (!reset) newData.data = _.concat(_.get(oldData, 'data', []), newData.data);
@@ -147,15 +152,16 @@ const store = new Vuex.Store({
       });
       commit('changeFiles', files);
     },
+
     async  getShutterstockImageInfo({ commit, state }, params) {
-      const res = await shutterstockService.getImageInfo(params.id);
-      const keywords = _.get(res, 'keywords');
+      const res = await axios.get(`http://localhost:3000/stocks/sutterstock/images/${params.id}`);
+      const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: true });
     },
     async removeImageTags({ commit, state }, params) {
-      const res = await shutterstockService.getImageInfo(params.id);
-      const keywords = _.get(res, 'keywords');
+      const res = await axios.get(`http://localhost:3000/stocks/sutterstock/images/${params.id}`);
+      const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: -1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: false });
     },

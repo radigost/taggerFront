@@ -39,6 +39,7 @@ const auth = new ShutterstockOAuth({
   complete(data) { myCallback('complete', data); },
 });
 
+//moved
 const findShutterstockImages = async (tags, page = 1, category='13') => {
   const query = _.map(tags, tag => _.get(tag,'Name')) + '';
   let res = { data: [] };
@@ -60,7 +61,7 @@ const findShutterstockImages = async (tags, page = 1, category='13') => {
   }
   return res.data;
 };
-
+//moved
 const getImageInfo = async (id) => {
   const res = await axios.get(`https://api.shutterstock.com/v2/images/${id}`,{
     auth: {
