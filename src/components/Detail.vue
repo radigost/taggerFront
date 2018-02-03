@@ -24,6 +24,8 @@
         },
         created(){
           console.log(this.$route.params.key);
+          this.$store.dispatch('getShutterstockCategories');
+
         }
     }
 

@@ -1,6 +1,13 @@
 <template>
   <div class="list__shutterstock">
-    <div v-if="file && file.shutterStockImages" style="overflow-y:auto;" >
+    <div class="list__categories">
+      <div class="list__category" v-for="category in categories" >
+        <input type="radio" name="category" v-bind:value="picked"  v-on:change="chooseCategory(category)">
+        <label for="category"> {{category.name}}</label>
+      </div>
+      <p>{{picked}}</p>
+    </div>
+    <div v-if="file && file.shutterStockImages" style="overflow-y:auto;">
       <p>Всего найдено похожих - {{getProperty(file,'shutterStockImages.total_count')}} </p>
       <div class="list__tags-container">
         <div class="list__tag" v-for="(num, keyword ) in file.keywords">
@@ -12,7 +19,7 @@
       <div class="shutterstock__list">
         <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
           <div class="shutterstock__cell shutterstock__cell--image">
-            <img :src="getImage(image)" />
+            <img :src="getImage(image)"/>
           </div>
           <div class="shutterstock__cell">
             {{image.description}}
@@ -29,105 +36,145 @@
 
 </template>
 <script>
-  import MdTable from "../../node_modules/vue-material/src/components/mdTable/mdTable.vue";
-  import MdTableRow from "../../node_modules/vue-material/src/components/mdTable/mdTableRow.vue";
-  import MdTableCell from "../../node_modules/vue-material/src/components/mdTable/mdTableCell.vue";
-  import MdButton from "../../node_modules/vue-material/src/components/mdButton/mdButton.vue";
+  import MdTable from '../../node_modules/vue-material/src/components/mdTable/mdTable.vue';
+  import MdTableRow from '../../node_modules/vue-material/src/components/mdTable/mdTableRow.vue';
+  import MdTableCell from '../../node_modules/vue-material/src/components/mdTable/mdTableCell.vue';
+  import MdButton from '../../node_modules/vue-material/src/components/mdButton/mdButton.vue';
 
   export default {
     name: 'shutterstockList',
-    components:{
+    components: {
       MdTable,
       MdTableRow,
       MdTableCell,
       MdButton,
     },
-    props:['id'],
-    computed:{
-      file(){
-        return _.find(this.$store.state.files,{Key:this.id});
-      },
-      currentPage(){
-        return this.file.shutterStockImages.page;
+    data(){
+      return {
       }
     },
-    methods:{
-      getProperty(elem,property){
-        return _.get(elem,`${property}`);
+    props: ['id'],
+    computed: {
+      file() {
+        return _.find(this.$store.state.files, { Key: this.id });
       },
-      getImageKeywords(Key){
-        return _.get(this.$store.state.shutterStockImages,'Key');
+      currentPage() {
+        return this.file.shutterStockImages.page;
       },
-      getImage(image){
-        return _.get(image,'assets.small_thumb.url');
+      categories() {
+        return this.$store.state.categories;
       },
-      sortedKeywords(list){
-        return Object.keys(list).sort(function(a,b){return list[a]-list[b]})
+      picked(){
+        return this.$store.state.selectedCategory;
+      }
+    },
+    methods: {
+      chooseCategory(category){
+        console.log("categoryy",category);
+        this.$store.commit('changeSelectedCategory',category);
+        const params = {
+          file: this.file,
+          reset:true
+        };
+        this.$store.dispatch('findShutterstockImages', params);
+
+        // this.picked = category.id
       },
-      getTags(image,Key){
-        const params ={
+      getProperty(elem, property) {
+        return _.get(elem, `${property}`);
+      },
+      getImageKeywords(Key) {
+        return _.get(this.$store.state.shutterStockImages, 'Key');
+      },
+      getImage(image) {
+        return _.get(image, 'assets.small_thumb.url');
+      },
+      sortedKeywords(list) {
+        return Object.keys(list)
+          .sort(function (a, b) {
+            return list[a] - list[b];
+          });
+      },
+      getTags(image, Key) {
+        const params = {
           id: image.id,
           Key: Key
         };
         this.$store.dispatch('getShutterstockImageInfo', params);
       },
-      removeTags(image,Key){
-        const params ={
+      removeTags(image, Key) {
+        const params = {
           id: image.id,
           Key: Key
         };
         this.$store.dispatch('removeImageTags', params);
       },
-      removeTag(keyword,num,Key){
-        const params ={
+      removeTag(keyword, num, Key) {
+        const params = {
           keywords: [keyword],
           action: -num,
           Key,
         };
-        console.log(params)
-        this.$store.commit('addKeywords',params);
+        console.log(params);
+        this.$store.commit('addKeywords', params);
       },
-      addTag(keyword,num,Key){
-        this.$store.commit('addTagForFile',{value:keyword,Key});
-        this.removeTag(keyword,num,Key);
+      addTag(keyword, num, Key) {
+        this.$store.commit('addTagForFile', { value: keyword, Key });
+        this.removeTag(keyword, num, Key);
       },
-      more(){
+      more() {
         const params = {
           file: this.file,
           page: this.currentPage,
-        }
-        this.$store.dispatch('findShutterstockImages',params);
+        };
+        this.$store.dispatch('findShutterstockImages', params);
       }
     }
-  }
+  };
 </script>
 
 <style>
-  .list__shutterstock{
+  .list__shutterstock {
     flex: 1;
     flex-basis: 77%;
     max-height: 90vh;
     overflow-y: scroll;
   }
-  .shutterstock__list{
+
+  .shutterstock__list {
     display: flex;
     flex-flow: column;
   }
-  .shutterstock__row{
-    display:flex;
-   flex-flow: row;
+
+  .shutterstock__row {
+    display: flex;
+    flex-flow: row;
   }
-  .shutterstock__cell{
+
+  .shutterstock__cell {
     flex-basis: 33%;
   }
-  .list__tags-container{
+
+  .list__tags-container {
     display: flex;
     flex-flow: row;
     flex-wrap: wrap;
   }
-  .list__tag{
+
+  .list__tag {
     flex-basis: 15%;
     border: 1px solid black;
     border-radius: 4px;
+  }
+  .list__categories{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .list__category{
+    display: flex;
+    flex-direction: row;
+    margin: 1em;
   }
 </style>

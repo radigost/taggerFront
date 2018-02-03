@@ -11,6 +11,8 @@ const store = new Vuex.Store({
   state: {
     files: [],
     loadingImageList: false,
+    categories:[],
+    selectedCategory:13
   },
   mutations: {
     changeFiles(state, payload) {
@@ -86,9 +88,17 @@ const store = new Vuex.Store({
       });
       state.files = files;
     },
+
     changeLoadingImageState(state, isLoading) {
       state.loadingImageList = isLoading;
     },
+
+    changeCategories(state,categories){
+      state.categories = categories;
+    },
+    changeSelectedCategory(state,category){
+      state.selectedCategory = category;
+    }
   },
   actions: {
     // aws
@@ -129,30 +139,34 @@ const store = new Vuex.Store({
     },
 
     // shutterstock
-    // moved
     async findShutterstockImages({ commit, state, dispatch }, params) {
       const page = params.page ? params.page + 1 : 1;
       const query = _.map(params.file.labels, tag => _.get(tag,'Name')) + '';
-      const shutterStockImages = await shutterstock.get('/',{
-        params:{query,page}
-      });
+      const category = _.get(state,'selectedCategory.id',13);
 
+      const shutterStockImages = await shutterstock.get('',{params:{query,page,category}});
       const files = _.map(state.files, (file) => {
-        const mergeData = (oldData, newData, reset = false) => {
-          if (!reset) newData.data = _.concat(_.get(oldData, 'data', []), newData.data);
-          return newData;
+        const findFileAndAppendOrSetShutterStockImages = (file,shutterStockImages,params)=>{
+          const addOrSetShutterStockImages = (file,shutterStockImages,params)=>{
+            const mergeData = (oldData, newData, reset = false) => {
+              if (!reset) newData.data = _.concat(_.get(oldData, 'data', []), newData.data);
+              return newData;
+            };
+
+            return mergeData(_.get(file, 'shutterStockImages', {}), shutterStockImages, params.reset);
+          };
+
+          if (params.file.Key === file.Key) {
+            file.shutterStockImages = addOrSetShutterStockImages(file,shutterStockImages,params);
+            file.size= 'md-size-100'
+          }
         };
-        if (params.file.Key === file.Key) {
-          file = _.assign(file, {
-            shutterStockImages: mergeData(_.get(file, 'shutterStockImages', {}), shutterStockImages, params.reset),
-            size: 'md-size-100',
-          });
-        }
+
+        file = findFileAndAppendOrSetShutterStockImages(file,shutterStockImages,params);
         return file;
       });
       commit('changeFiles', files);
     },
-
     async  getShutterstockImageInfo({ commit, state }, params) {
       const res = await shutterstock.get(`/${params.id}`);
       const keywords = _.get(res, 'data.keywords');
@@ -164,6 +178,12 @@ const store = new Vuex.Store({
       const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: -1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: false });
+    },
+
+    async getShutterstockCategories({commit, state}){
+      const res = await shutterstock.get(`/categories`);
+      console.log(_.get(res,'data'));
+      commit('changeCategories',_.get(res,'data'));
     },
   },
 });
