@@ -12,7 +12,7 @@
       name: "tag-popover",
       props: {
         "tag": Object,
-        "Key": Object,
+        "Key": String,
       },
       methods: {
           deleteTag() {

@@ -1,28 +1,19 @@
 <template>
-  <div class="list__shutterstock">
-    <div class="list__categories">
-      <div class="list__category" v-for="category in categories" >
+  <div class="shutterstock__inner">
+    <div class="shutterstock__categories">
+      <div class="shutterstock__category" v-for="category in categories" >
         <input type="radio" name="category" v-bind:value="picked"  v-on:change="chooseCategory(category)">
         <label for="category"> {{category.name}}</label>
       </div>
-      <p>{{picked}}</p>
     </div>
-    <div v-if="file && file.shutterStockImages" style="overflow-y:auto;">
-      <p>Всего найдено похожих - {{getProperty(file,'shutterStockImages.total_count')}} </p>
-      <div class="list__tags-container">
-        <div class="list__tag" v-for="(num, keyword ) in file.keywords">
-          {{num}} - {{keyword}}
-          <md-button @click="removeTag(keyword,num,file.Key)">х</md-button>
-          <md-button @click="addTag(keyword,num,file.Key)">+</md-button>
-        </div>
-      </div>
-      <div class="shutterstock__list">
+
+    <div class="shutterstock__list" v-if="file && file.shutterStockImages" >
+      <p>Всего найдено похожих - {{totalShutterStockImages}} </p>
+
+      <div >
         <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
-          <div class="shutterstock__cell shutterstock__cell--image">
+          <div class="shutterstock__cell shutterstock__image">
             <img :src="getImage(image)"/>
-          </div>
-          <div class="shutterstock__cell">
-            {{image.description}}
           </div>
           <div class="shutterstock__cell">
             <md-button @click="getTags(image,file.Key)" :disabled="image.tagsTaken">Взять теги</md-button>
@@ -30,6 +21,7 @@
           </div>
         </div>
       </div>
+
       <md-button @click="more()">еще</md-button>
     </div>
   </div>
@@ -40,6 +32,7 @@
   import MdTableRow from '../../node_modules/vue-material/src/components/mdTable/mdTableRow.vue';
   import MdTableCell from '../../node_modules/vue-material/src/components/mdTable/mdTableCell.vue';
   import MdButton from '../../node_modules/vue-material/src/components/mdButton/mdButton.vue';
+
 
   export default {
     name: 'shutterstockList',
@@ -66,7 +59,11 @@
       },
       picked(){
         return this.$store.state.selectedCategory;
+      },
+      totalShutterStockImages(){
+        return (_.get(this.file,'shutterStockImages.data',[])).length
       }
+
     },
     methods: {
       chooseCategory(category){
@@ -81,13 +78,14 @@
         // this.picked = category.id
       },
       getProperty(elem, property) {
+        console.log(elem)
         return _.get(elem, `${property}`);
       },
       getImageKeywords(Key) {
         return _.get(this.$store.state.shutterStockImages, 'Key');
       },
       getImage(image) {
-        return _.get(image, 'assets.small_thumb.url');
+        return _.get(image, 'assets.preview.url');
       },
       sortedKeywords(list) {
         return Object.keys(list)
@@ -109,20 +107,9 @@
         };
         this.$store.dispatch('removeImageTags', params);
       },
-      removeTag(keyword, num, Key) {
-        const params = {
-          keywords: [keyword],
-          action: -num,
-          Key,
-        };
-        console.log(params);
-        this.$store.commit('addKeywords', params);
-      },
-      addTag(keyword, num, Key) {
-        this.$store.commit('addTagForFile', { value: keyword, Key });
-        this.removeTag(keyword, num, Key);
-      },
+
       more() {
+        console.log(this);
         const params = {
           file: this.file,
           page: this.currentPage,
@@ -134,9 +121,8 @@
 </script>
 
 <style>
-  .list__shutterstock {
-    flex: 1;
-    flex-basis: 77%;
+  .shutterstock__inner {
+    flex-basis: 33%;
     max-height: 90vh;
     overflow-y: scroll;
   }
@@ -144,37 +130,36 @@
   .shutterstock__list {
     display: flex;
     flex-flow: column;
+    padding: 0.5em;
+
   }
 
   .shutterstock__row {
     display: flex;
     flex-flow: row;
+    border: 1px dotted grey;
+    border-radius: 4px;
+    padding: 0.5em;
   }
 
   .shutterstock__cell {
     flex-basis: 33%;
   }
-
-  .list__tags-container {
-    display: flex;
-    flex-flow: row;
-    flex-wrap: wrap;
+  .shutterstock__image{
+    flex-basis: 80%;
   }
 
-  .list__tag {
-    flex-basis: 15%;
-    border: 1px solid black;
-    border-radius: 4px;
-  }
-  .list__categories{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .list__category{
-    display: flex;
-    flex-direction: row;
+  .shutterstock__categories{
     margin: 1em;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .shutterstock__category{
+    display: flex;
+    flex-direction: row;
+    /*margin: 1em;*/
+    flex-basis: 30%;
   }
 </style>

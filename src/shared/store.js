@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import imageService from './imageService';
-import {shutterstock} from './http';
+import { shutterstock } from './http';
 
 Vue.use(Vuex);
 
@@ -11,8 +11,8 @@ const store = new Vuex.Store({
   state: {
     files: [],
     loadingImageList: false,
-    categories:[],
-    selectedCategory:13
+    categories: [],
+    selectedCategory: 13
   },
   mutations: {
     changeFiles(state, payload) {
@@ -24,7 +24,8 @@ const store = new Vuex.Store({
     addTagForFile(state, payload) {
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          const newLabels = _.trim(_.get(payload, 'value', '')).split(',');
+          const newLabels = _.trim(_.get(payload, 'value', ''))
+            .split(',');
           if (newLabels.length > 1) {
             file.labels = _.map(newLabels, value => ({ Name: _.trim(value) }));
           } else {
@@ -46,7 +47,8 @@ const store = new Vuex.Store({
     changeTagsForFile(state, payload) {
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          const newLabels = _.trim(_.get(payload, 'value', '')).split(',');
+          const newLabels = _.trim(_.get(payload, 'value', ''))
+            .split(',');
           if (newLabels.length > 1) {
             file.labels = _.map(newLabels, value => ({ Name: _.trim(value) }));
           }
@@ -93,10 +95,10 @@ const store = new Vuex.Store({
       state.loadingImageList = isLoading;
     },
 
-    changeCategories(state,categories){
+    changeCategories(state, categories) {
       state.categories = categories;
     },
-    changeSelectedCategory(state,category){
+    changeSelectedCategory(state, category) {
       state.selectedCategory = category;
     }
   },
@@ -106,7 +108,10 @@ const store = new Vuex.Store({
       let files = _.map(state.files, file => file.Key === name ? _.assign(file, { loading: true }) : file);
       commit('changeFiles', files);
       const labels = await imageService.detectLabels(name);
-      files = _.map(state.files, file => file.Key === name ? _.assign(file, { labels, loading: false }) : file);
+      files = _.map(state.files, file => file.Key === name ? _.assign(file, {
+        labels,
+        loading: false
+      }) : file);
       commit('changeFiles', files);
     },
     async listObjects({ commit, dispatch }) {
@@ -141,33 +146,50 @@ const store = new Vuex.Store({
     // shutterstock
     async findShutterstockImages({ commit, state, dispatch }, params) {
       const page = params.page ? params.page + 1 : 1;
-      const query = _.map(params.file.labels, tag => _.get(tag,'Name')) + '';
-      const category = _.get(state,'selectedCategory.id',13);
+      const query = _.map(params.file.labels, tag => _.get(tag, 'Name')) + '';
+      const category = _.get(state, 'selectedCategory.id', 13);
 
-      const shutterStockImages = await shutterstock.get('',{params:{query,page,category}});
+      const recievedShutterStockImages = await shutterstock.get('', {
+        params: {
+          query,
+          page,
+          category
+        }
+      });
       const files = _.map(state.files, (file) => {
-        const findFileAndAppendOrSetShutterStockImages = (file,shutterStockImages,params)=>{
-          const addOrSetShutterStockImages = (file,shutterStockImages,params)=>{
-            const mergeData = (oldData, newData, reset = false) => {
-              if (!reset) newData.data = _.concat(_.get(oldData, 'data', []), newData.data);
-              return newData;
-            };
+        const appendOrSetShutterStockImages = (file, shutterStockImages, reset = false) => {
 
-            return mergeData(_.get(file, 'shutterStockImages', {}), shutterStockImages, params.reset);
+          const updateDataAndPageForImages = (oldShutterStockImages, shutterStockImages, reset = false) => {
+
+            const setPage = (oldPage, reset = false) => (!reset && oldPage) ? ++oldPage : 1;
+            const mergeData = (oldData, newData, reset = false) => (!reset) ? _.concat(oldData, newData) : newData;
+            const oldData = _.get(oldShutterStockImages, 'data', []);
+            const newData = _.get(shutterStockImages, 'data', []);
+
+            const result = {
+              data: mergeData(oldData, newData, reset),
+              page: setPage(oldShutterStockImages.page, reset),
+            };
+            return result;
           };
 
           if (params.file.Key === file.Key) {
-            file.shutterStockImages = addOrSetShutterStockImages(file,shutterStockImages,params);
-            file.size= 'md-size-100'
+            const oldShutterStockImages = _.get(file, 'shutterStockImages', {});
+            file.shutterStockImages = updateDataAndPageForImages(oldShutterStockImages, shutterStockImages, reset);
+            file.size = 'md-size-100';
           }
+
+          return file;
         };
 
-        file = findFileAndAppendOrSetShutterStockImages(file,shutterStockImages,params);
-        return file;
+        const reset = params.reset;
+        const resFile = appendOrSetShutterStockImages(file, recievedShutterStockImages, reset);
+
+        return resFile;
       });
       commit('changeFiles', files);
     },
-    async  getShutterstockImageInfo({ commit, state }, params) {
+    async getShutterstockImageInfo({ commit, state }, params) {
       const res = await shutterstock.get(`/${params.id}`);
       const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
@@ -180,10 +202,10 @@ const store = new Vuex.Store({
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: false });
     },
 
-    async getShutterstockCategories({commit, state}){
+    async getShutterstockCategories({ commit, state }) {
       const res = await shutterstock.get(`/categories`);
-      console.log(_.get(res,'data'));
-      commit('changeCategories',_.get(res,'data'));
+      console.log(_.get(res, 'data'));
+      commit('changeCategories', _.get(res, 'data'));
     },
   },
 });

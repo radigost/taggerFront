@@ -1,4 +1,3 @@
-npm
 <template>
   <div class="list__card">
     <md-card md-with-hover>
@@ -168,8 +167,6 @@ npm
   .list__card {
     /*position: sticky;*/
     /*top:2em;*/
-    flex: 1;
-    flex-basis: 33%;
     max-height: 60em;
     margin-bottom: 5em;
   }
