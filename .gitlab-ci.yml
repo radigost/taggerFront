@@ -32,4 +32,4 @@ deploy_production:
   script:
   - pip install awscli
   - ls
-  - aws s3 cp ./dist s3://$S3_BUCKET_NAME/ --recursive
+  - aws s3 cp ./dist s3://$S3_BUCKET_NAME/ --recursive --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
