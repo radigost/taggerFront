@@ -1,5 +1,8 @@
 image: node
 
+variables:
+  S3_BUCKET_NAME: "testapp-tagger"
+
 before_script:
   - npm install
 
@@ -14,3 +17,9 @@ pages:
       - dist
   only:
     - master
+
+deploy:
+  image: python:latest
+  script:
+  - pip install awscli
+  - aws s3 cp ./ s3://$S3_BUCKET_NAME/ --recursive
