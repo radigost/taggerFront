@@ -2,7 +2,6 @@
   <md-button @click="ShutterAuth">Авторизация</md-button>
 </template>
 <script>
-  import shutterstockService from '../shared/deplrecated/shutterstockService';
 
 
   export default{
