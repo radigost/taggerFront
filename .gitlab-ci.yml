@@ -18,7 +18,6 @@ build:
     - npm run build
     - mkdir -p ./public
     - ls
-    - cp ./dist/** ./public/
   artifacts:
     paths:
       - dist/
