@@ -2,6 +2,8 @@
 
 > project for auto-tag recognition
 
+[![pipeline status](https://gitlab.com/nickolay.pol/taggerFront/badges/master/pipeline.svg)](https://gitlab.com/nickolay.pol/taggerFront/commits/master)
+
 ## Build Setup
 
 ``` bash
