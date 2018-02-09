@@ -3,13 +3,14 @@
 variables:
   S3_BUCKET_NAME: "testapp-tagger"
 
-before_script:
-  - npm install
+
 
 cache:
   paths:
     - node_modules/
 pages:
+before_script:
+  - npm install
   image: node
   script:
     - npm run build
