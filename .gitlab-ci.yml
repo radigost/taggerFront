@@ -1,4 +1,4 @@
-image: node
+
 
 variables:
   S3_BUCKET_NAME: "testapp-tagger"
@@ -10,8 +10,11 @@ cache:
   paths:
     - node_modules/
 pages:
+  image: node
   script:
     - npm run build
+    - mkdir -p ./public
+    - cp ./** ./public/
   artifacts:
     paths:
       - dist
