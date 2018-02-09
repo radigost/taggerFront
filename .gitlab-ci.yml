@@ -9,8 +9,8 @@ cache:
   paths:
     - node_modules/
 pages:
-before_script:
-  - npm install
+  before_script:
+    - npm install
   image: node
   script:
     - npm run build
