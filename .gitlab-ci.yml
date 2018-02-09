@@ -8,7 +8,7 @@ cache:
     - node_modules/
 pages:
   script:
-    - npm run build --report
+    - npm run build
   artifacts:
     paths:
       - dist
