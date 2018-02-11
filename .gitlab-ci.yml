@@ -21,7 +21,7 @@ build:
   artifacts:
     paths:
       - dist/
-    when: always
+    when: on_success
 
   only:
     - master

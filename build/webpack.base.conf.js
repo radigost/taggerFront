@@ -3,11 +3,13 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+const webpack = require('webpack');
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
+// console.log(process.env.SERVER_ADDRESS)
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
@@ -74,5 +76,10 @@ module.exports = {
         }
       }
     ]
-  }
-}
+  },
+  plugins:[
+    new webpack.DefinePlugin({
+      SERVER_ADDRESS:JSON.stringify(process.env.SERVER_ADDRESS)
+    })
+  ],
+};

@@ -1,13 +1,14 @@
-import axios from 'axios/index';
+ import axios from 'axios/index';
 
+const base = SERVER_ADDRESS || 'http://localhost:3000';
 export const http = axios.create({
-  baseURL:'http://localhost:3000/api'
+  baseURL:`${base}/api`
 });
 
 export const shutterstock = axios.create({
-  baseURL:'http://localhost:3000/api/stocks/shutterstock'
+  baseURL:`${base}/api/stocks/shutterstock`
 });
 
 export const images = axios.create({
-  baseURL:`http://localhost:3000/api/images`
+  baseURL:`${base}/api/images`
 });
