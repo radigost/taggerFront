@@ -75,7 +75,7 @@
     props: ['id'],
     data(){
       return {
-        toAdd:{}
+        toAdd:''
       }
     },
     computed: {
@@ -105,6 +105,7 @@
         this.$store.commit('removeTagForFile', { Key, value });
       },
       findShutterstockImages(file) {
+        this.$store.commit('resetKeywords', { Key: file.Key});
         this.$store.dispatch('findShutterstockImages', { file, reset: true });
       },
       deleteImage(key) {
@@ -164,7 +165,6 @@
       },
       getExif(file) {
         const exifObj = piexif.load(file.src);
-        console.log(exifObj);
       },
     },
   };

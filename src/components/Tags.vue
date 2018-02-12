@@ -43,7 +43,6 @@
           action: -num,
           Key,
         };
-        console.log(params);
         this.$store.commit('addKeywords', params);
       },
       addTag(keyword, num, Key) {

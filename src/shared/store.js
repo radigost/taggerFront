@@ -36,7 +36,6 @@ const store = new Vuex.Store({
       });
     },
     removeTagForFile(state, payload) {
-      console.log(state, payload);
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
           file.labels = _.remove(file.labels, label => label.Name !== payload.value);
@@ -85,7 +84,18 @@ const store = new Vuex.Store({
         return file;
       };
       const files = _.map(state.files, (file) => {
-        if (file.Key === payload.Key) file = updateKeywords(file, payload.keywords);
+        if (file.Key === payload.Key) {
+          file = updateKeywords(file, payload.keywords);
+        }
+        return file;
+      });
+      state.files = files;
+    },
+    resetKeywords(state,payload){
+      const files = _.map(state.files, (file) => {
+        if (file.Key === payload.Key) {
+          file.keywords = {};
+        }
         return file;
       });
       state.files = files;
@@ -125,7 +135,6 @@ const store = new Vuex.Store({
       commit('changeLoadingImageState', true);
       const uploaded = await imageService.upload(file);
       const files = _.concat(state.files, uploaded);
-      console.log(files);
       commit('changeLoadingImageState', false);
       commit('changeFiles', files);
       dispatch('detectLabels', uploaded.Key);

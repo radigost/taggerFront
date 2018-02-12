@@ -42,7 +42,6 @@
       },
     },
     created() {
-      console.log(this.$route.params.key);
       if(!_.find(this.$store.state.files, { Key: this.$route.params.key })){
         this.$store.dispatch('listObjects');
       }

@@ -67,7 +67,6 @@
     },
     methods: {
       chooseCategory(category){
-        console.log("categoryy",category);
         this.$store.commit('changeSelectedCategory',category);
         const params = {
           file: this.file,
@@ -78,7 +77,6 @@
         // this.picked = category.id
       },
       getProperty(elem, property) {
-        console.log(elem)
         return _.get(elem, `${property}`);
       },
       getImageKeywords(Key) {
@@ -109,7 +107,6 @@
       },
 
       more() {
-        console.log(this);
         const params = {
           file: this.file,
           page: this.currentPage,
