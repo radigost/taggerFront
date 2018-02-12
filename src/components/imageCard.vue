@@ -176,6 +176,7 @@
     /*top:2em;*/
     max-height: 60em;
     margin-bottom: 5em;
+    flex-basis: 33%;
   }
 
   .md-card .md-card-media img {
@@ -216,6 +217,7 @@
     padding-left: 0.5em;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .image-card__hr {
