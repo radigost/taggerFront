@@ -39,7 +39,7 @@
                 <v-popover>
                   <a>{{label.Name}},&nbsp</a>
                   <template slot="popover">
-                    <tag-popover :tag="label" :Key="file.Key"/>
+                    <tag-popover :tag="label" :id="file.Key"/>
                   </template>
                 </v-popover>
               </div>
@@ -73,8 +73,15 @@
     },
     name: 'imageCard',
     props: ['id'],
+    data(){
+      return {
+        toAdd:{}
+      }
+    },
     computed: {
-      file() {
+      file() {{
+
+      }
         return _.find(this.$store.state.files, { Key: this.id });
       },
     },

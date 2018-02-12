@@ -12,12 +12,12 @@
       name: "tag-popover",
       props: {
         "tag": Object,
-        "Key": String,
+        "id": String,
       },
       methods: {
           deleteTag() {
             this.$store.commit('removeTagForFile', {
-              Key: this.Key,
+              Key: this.id,
               value: this.tag.Name,
             });
           },

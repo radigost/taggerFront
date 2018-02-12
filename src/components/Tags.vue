@@ -25,12 +25,14 @@
     },
     computed:{
       file() {
-        return _.find(this.$store.state.files, { Key: this.id });
+        const res = _.find(this.$store.state.files, { Key: this.id });
+        return res !== void 0 ? res : {};
       },
       keywords(){
-        const res = _.orderBy(_.map(this.file.keywords,(value,name)=>({name,value})),'value','desc');
-
-        console.log(res);
+        let res;
+        if (this.file !== void 0 ){
+          res = _.orderBy(_.map(this.file.keywords,(value,name)=>({name,value})),'value','desc');
+        }
         return res;
       }
     },

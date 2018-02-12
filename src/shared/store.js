@@ -204,7 +204,6 @@ const store = new Vuex.Store({
 
     async getShutterstockCategories({ commit, state }) {
       const res = await shutterstock.get(`/categories`);
-      console.log(_.get(res, 'data'));
       commit('changeCategories', _.get(res, 'data'));
     },
   },
