@@ -5,10 +5,6 @@
         <md-card-media>
           <img class="image-card__image" :id="file.Key" :src="file.src">
         </md-card-media>
-        <!--<md-card-actions>-->
-          <!--<md-button @click="getExif(file)" style="width:auto;"> Получить метаданные</md-button>-->
-<!---->
-        <!--</md-card-actions>-->
         <md-card-actions>
           <md-button @click="detectLabels(file.Key)" style="width:auto;">Распознать</md-button>
           <md-button @click="deleteImage(file.Key)" style="width:auto;">
@@ -31,28 +27,26 @@
           <div class="image-card__result" v-show="!isLoading(file)">
 
             <label>Заголовок</label>
-            <input class="image-card__input" type="text" v-model="file.description"/>
-            <!--<div v-for="tag in file.labels">{{tag.Name}}<button @click="removeTag(tag.Name,file.Key)">X</button></div>-->
+            <input class="image-card__input image-card__input--caption" type="text" v-model="file.description"/>
             <label>Тэги</label>
-            <div class="image-card__input image-card__input--textarea" rows="7" disabled>
+            <div class="image-card__input" >
               <div class="popover-container" v-for="label in file.labels">
                 <v-popover>
-                  <a>{{label.Name}},&nbsp</a>
+                  <a>{{label.Name}}, &nbsp;</a>
                   <template slot="popover">
                     <tag-popover :tag="label" :id="file.Key"/>
                   </template>
                 </v-popover>
               </div>
-
             </div>
 
             <md-button class="align-left"
                        @click="setExif(file,{keywords:getTags(file.labels),description:file.description})"
                        style="width:auto;">Записать данные
             </md-button>
-            <md-button @click="downloadFile(file.src)" class="align-left">Скачать</md-button>
-          </div>
 
+            <md-button class="align-left" v-bind:href="file.src" download v-bind:disabled="!canDownload">Скачать</md-button>
+          </div>
         </md-card-content>
       </md-card-area>
     </md-card>
@@ -73,21 +67,31 @@
     },
     name: 'imageCard',
     props: ['id'],
-    data(){
+    data() {
       return {
-        toAdd:''
-      }
+        toAdd: '',
+        canDownload: false,
+      };
     },
     computed: {
-      file() {{
+      file() {
+        {
 
-      }
+        }
         return _.find(this.$store.state.files, { Key: this.id });
       },
     },
     methods: {
       downloadFile(src) {
         window.open(src, 'blank');
+        // Convert the Base64 string back to text.
+        var txt = atob(data.src);
+
+// Blob for saving.
+        var blob = new Blob([byteString], { type: 'text/plain' });
+
+// Tell the browser to save as report.txt.
+        saveAs(blob, 'report.txt');
       },
       isLoading(file) {
         return file.loading;
@@ -105,7 +109,7 @@
         this.$store.commit('removeTagForFile', { Key, value });
       },
       findShutterstockImages(file) {
-        this.$store.commit('resetKeywords', { Key: file.Key});
+        this.$store.commit('resetKeywords', { Key: file.Key });
         this.$store.dispatch('findShutterstockImages', { file, reset: true });
       },
       deleteImage(key) {
@@ -122,6 +126,7 @@
           delete exifObj['thumbnail'];
           const exifStr = piexif.dump(exifObj);
           file.src = piexif.insert(exifStr, file.src);
+          this.canDownload = true;
         } catch (err) {
           console.error(err);
         }
@@ -207,18 +212,21 @@
 
   .image-card__input {
     width: 100%;
-  }
-
-  .image-card__input--textarea {
     border-radius: 4px;
     background-color: white;
     border: 1px solid lightgray;
-    padding-top: 1em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
     padding-left: 0.5em;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    margin: 0.5em;
   }
+  .image-card__input--caption{
+      font-size: large;
+  }
+
 
   .image-card__hr {
     border: 0;
@@ -227,13 +235,12 @@
   }
 
   .align-left {
-    align-self: right;
+    align-self: flex-end;
   }
 
   .popover-container {
     display: flex;
     flex-direction: row;
-    flex-basis: 10%;
   }
 
   .tooltip {
