@@ -1,4 +1,4 @@
- import axios from 'axios/index';
+import axios from 'axios/index';
 
 const base = SERVER_ADDRESS || 'http://localhost:3000';
 export const http = axios.create({
@@ -12,3 +12,7 @@ export const shutterstock = axios.create({
 export const images = axios.create({
   baseURL:`${base}/api/images`
 });
+
+export const translate = axios.create({
+  baseURL:`${base}/api/translate`
+})

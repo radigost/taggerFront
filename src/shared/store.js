@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import imageService from './imageService';
+import translateService from './translateService'
 import { shutterstock } from './http';
 
 Vue.use(Vuex);
@@ -21,6 +22,7 @@ const store = new Vuex.Store({
     changeImages(state, payload) {
       state.shutterStockImages[payload.Key] = payload.images;
     },
+
     addTagForFile(state, payload) {
       state.files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
@@ -67,6 +69,19 @@ const store = new Vuex.Store({
         }
         return file;
       });
+    },
+    updateTagForFile(state,payload){
+      state.files= state.files.map((file)=>{
+        if(_.isEqual(file.Key,payload.Key)){
+          file.labels = file.labels.map((tag)=>{
+            if(tag.Name === payload.tag.Name){
+              tag = payload.tag;
+            }
+            return tag;
+          })
+        }
+        return file;
+      })
     },
     addKeywords(state, payload) {
       const updateKeywords = (file, keywords) => {
@@ -214,6 +229,13 @@ const store = new Vuex.Store({
     async getShutterstockCategories({ commit, state }) {
       const res = await shutterstock.get(`/categories`);
       commit('changeCategories', _.get(res, 'data'));
+    },
+
+  //  translate
+    async translateTag({commit,state},params){
+      const text = await translateService.translate(params.tag.Name);
+      const updatedTag = {...params.tag,translatedName:text};
+      commit('updateTagForFile',{tag:updatedTag,Key:params.Key});
     },
   },
 });
