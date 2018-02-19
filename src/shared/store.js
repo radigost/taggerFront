@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import imageService from './imageService';
-import translateService from './translateService'
+import translateService from './translateService';
 import { shutterstock } from './http';
 
 Vue.use(Vuex);
@@ -31,7 +31,7 @@ const store = new Vuex.Store({
           if (newLabels.length > 1) {
             file.labels = _.map(newLabels, value => ({ Name: _.trim(value) }));
           } else {
-            file.labels.push({ Name: payload.value });
+            file.labels.push({ Name: payload.value, translatedName: payload.translatedName });
           }
         }
         return file;
@@ -70,33 +70,45 @@ const store = new Vuex.Store({
         return file;
       });
     },
-    updateTagForFile(state,payload){
-      state.files= state.files.map((file)=>{
-        if(_.isEqual(file.Key,payload.Key)){
-          file.labels = file.labels.map((tag)=>{
-            if(tag.Name === payload.tag.Name){
+    updateTagForFile(state, payload) {
+      state.files = state.files.map((file) => {
+        if (_.isEqual(file.Key, payload.Key)) {
+          file.labels = file.labels.map((tag) => {
+            if (tag.Name === payload.tag.Name) {
               tag = payload.tag;
             }
             return tag;
-          })
+          });
         }
         return file;
-      })
+      });
     },
 
     addKeywords(state, payload) {
       const updateKeywords = (file, keywords) => {
         _.forEach(keywords, (keyword) => {
-          if (_.isUndefined(_.get(file, 'keywords'))) file.keywords = {};
-          if (_.isUndefined(_.get(file, ['keywords', keyword]))) {
-            file.keywords[keyword] = 1;
-          } else {
-            file.keywords[keyword] += payload.action;
-            if (file.keywords[keyword] === 0) {
-              file.keywords = _.omit(file.keywords, keyword);
-            }
+          if (_.isUndefined(_.get(file, 'keywords'))) file.keywords = [];
+          const exists = _.find(file.keywords, { name: keyword });
+
+          if (exists !== void 0) {
+            file.keywords = _.map(file.keywords, (kwrd) => {
+              if (kwrd.name === keyword) {
+                kwrd.value += _.get(payload, 'action', 0);
+                kwrd.translatedName = _.get(payload, 'keyword.translatedName', _.get(kwrd,'translatedName'));
+              }
+              return kwrd;
+            });
+          }
+          else {
+            const DEFAULT_KEYWORD_VALUE = 1;
+
+            file.keywords.push({
+              name: keyword,
+              value: _.get(payload, 'action', DEFAULT_KEYWORD_VALUE),
+            });
           }
         });
+
         return file;
       };
 
@@ -109,10 +121,10 @@ const store = new Vuex.Store({
 
       state.files = files;
     },
-    resetKeywords(state,payload){
+    resetKeywords(state, payload) {
       const files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
-          file.keywords = {};
+          file.keywords = [];
         }
         return file;
       });
@@ -235,11 +247,20 @@ const store = new Vuex.Store({
       commit('changeCategories', _.get(res, 'data'));
     },
 
-  //  translate
-    async translateTag({commit,state},params){
+    //  translate
+    async translateTag({ commit, state }, params) {
       const text = await translateService.translate(params.tag.Name);
-      const updatedTag = {...params.tag,translatedName:text};
-      commit('updateTagForFile',{tag:updatedTag,Key:params.Key});
+      const updatedTag = { ...params.tag, translatedName: text };
+      commit('updateTagForFile', { tag: updatedTag, Key: params.Key });
+    },
+    async translateKeyword({ commit, state }, params) {
+      try {
+        params.keyword.translatedName = await translateService.translate(params.keyword.name);
+        commit('addKeywords', { Key: params.Key, keyword: params.keyword });
+      }
+      catch (err) {
+        console.error(err);
+      }
     },
   },
 });

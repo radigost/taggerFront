@@ -14,8 +14,12 @@
             <img :src="getImage(image)"/>
           </div>
           <div class="shutterstock__cell">
-            <md-button class="md-icon-button md-dense" @click="getTags(image,file.Key)" :disabled="image.tagsTaken">+</md-button>
-            <md-button class="md-icon-button md-dense" @click="removeTags(image,file.Key)" :disabled="!image.tagsTaken">-</md-button>
+            <md-button class="md-icon-button md-dense" @click="getTags(image,file.Key)" :disabled="image.tagsTaken">
+              <md-icon>add</md-icon>
+            </md-button>
+            <md-button class="md-icon-button md-dense" @click="removeTags(image,file.Key)" :disabled="!image.tagsTaken">
+            <md-icon>delete</md-icon>
+            </md-button>
           </div>
         </div>
 

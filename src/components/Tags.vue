@@ -1,14 +1,15 @@
 <template>
   <div class="tags__inner">
-    <div class="tag tag__inner" v-for="keyword  in keywords">
+    <div class="tag tag__inner" v-for="keyword  in keywords" v-show="keyword.value>0">
       <span class="tag__value">{{keyword.value}}</span>
       <span class="tag__name">{{keyword.name}} </span>
       <span class="tag__name">{{keyword.translatedName}} </span>
+      <md-button @click="translate(keyword,file.Key)">перевести</md-button>
       <div class="tag__actions">
-        <md-button class="tag__button tag__button--remove md-icon-button" @click="removeTag(keyword.name,keyword.value,file.Key)">
+        <md-button class="tag__button tag__button--remove md-icon-button" @click="removeTag(keyword,file.Key)">
           <md-icon>delete</md-icon>
         </md-button>
-        <md-button class="tag__button tag__button--add md-icon-button" @click="addTag(keyword.name,keyword.value,file.Key)">
+        <md-button class="tag__button tag__button--add md-icon-button" @click="addTag(keyword,file.Key)">
           <md-icon>add</md-icon>
         </md-button>
       </div>
@@ -19,6 +20,7 @@
 </template>
 
 <script>
+  import translateService from '../shared/translateService'
   export default {
     name: 'tags',
     props:{
@@ -32,24 +34,28 @@
       keywords(){
         let res;
         if (this.file !== void 0 ){
-          res = _.orderBy(_.map(this.file.keywords,(value,name)=>({name,value})),'value','desc');
+          res = _.orderBy(this.file.keywords,'value','desc');
         }
         return res;
       }
     },
     methods:{
-      removeTag(keyword, num, Key) {
+      removeTag(keyword, Key) {
         const params = {
-          keywords: [keyword],
-          action: -num,
+          keywords: [keyword.name],
+          action: -keyword.value,
           Key,
         };
         this.$store.commit('addKeywords', params);
       },
-      addTag(keyword, num, Key) {
-        this.$store.commit('addTagForFile', { value: keyword, Key });
-        this.removeTag(keyword, num, Key);
+      addTag(keyword,Key) {
+        this.$store.commit('addTagForFile', { value: keyword.name, translatedName:keyword.translatedName, Key });
+        this.removeTag(keyword,Key);
       },
+      async translate(keyword,Key){
+
+        this.$store.dispatch('translateKeyword',{Key,keyword});
+      }
     }
   };
 </script>
