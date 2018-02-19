@@ -6,21 +6,18 @@
         <label for="category"> {{category.name}}</label>
       </div>
     </div>
-
+    <p>Всего найдено похожих - {{totalShutterStockImages}} </p>
     <div class="shutterstock__list" v-if="file && file.shutterStockImages" >
-      <p>Всего найдено похожих - {{totalShutterStockImages}} </p>
 
-      <div >
         <div class="shutterstock__row" v-for="image in file.shutterStockImages.data" :key="image.id">
           <div class="shutterstock__cell shutterstock__image">
             <img :src="getImage(image)"/>
           </div>
           <div class="shutterstock__cell">
-            <md-button @click="getTags(image,file.Key)" :disabled="image.tagsTaken">Взять теги</md-button>
-            <md-button @click="removeTags(image,file.Key)" :disabled="!image.tagsTaken">Убрать теги</md-button>
+            <md-button class="md-icon-button md-dense" @click="getTags(image,file.Key)" :disabled="image.tagsTaken">+</md-button>
+            <md-button class="md-icon-button md-dense" @click="removeTags(image,file.Key)" :disabled="!image.tagsTaken">-</md-button>
           </div>
         </div>
-      </div>
 
       <md-button @click="more()">еще</md-button>
     </div>
@@ -83,7 +80,7 @@
         return _.get(this.$store.state.shutterStockImages, 'Key');
       },
       getImage(image) {
-        return _.get(image, 'assets.preview.url');
+        return _.get(image, 'assets.large_thumb.url');
       },
       sortedKeywords(list) {
         return Object.keys(list)
@@ -119,15 +116,16 @@
 
 <style>
   .shutterstock__inner {
-    flex-basis: 33%;
+    flex-basis: 66%;
     max-height: 90vh;
     overflow-y: scroll;
   }
 
   .shutterstock__list {
     display: flex;
-    flex-flow: column;
+    /*flex-flow: column;*/
     padding: 0.5em;
+    flex-wrap: wrap;
 
   }
 
@@ -137,13 +135,14 @@
     border: 1px dotted grey;
     border-radius: 4px;
     padding: 0.5em;
+    flex-basis: 33%;
   }
 
   .shutterstock__cell {
-    flex-basis: 33%;
+    /*flex-basis: 33%;*/
   }
-  .shutterstock__image{
-    flex-basis: 80%;
+  .shutterstock__image img{
+    width: 20em;
   }
 
   .shutterstock__categories{

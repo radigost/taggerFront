@@ -83,6 +83,7 @@ const store = new Vuex.Store({
         return file;
       })
     },
+
     addKeywords(state, payload) {
       const updateKeywords = (file, keywords) => {
         _.forEach(keywords, (keyword) => {
@@ -98,12 +99,14 @@ const store = new Vuex.Store({
         });
         return file;
       };
+
       const files = _.map(state.files, (file) => {
         if (file.Key === payload.Key) {
           file = updateKeywords(file, payload.keywords);
         }
         return file;
       });
+
       state.files = files;
     },
     resetKeywords(state,payload){
@@ -211,6 +214,7 @@ const store = new Vuex.Store({
 
         return resFile;
       });
+
       commit('changeFiles', files);
     },
     async getShutterstockImageInfo({ commit, state }, params) {

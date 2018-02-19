@@ -1,6 +1,6 @@
 <template>
   <div class="details__inner">
-    <h2>Detailed view</h2>
+    <!--<h2>Detailed view</h2>-->
 
     <div class="details__container" v-show="!loading">
       <image-card :id="file.Key"/>

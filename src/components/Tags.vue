@@ -1,8 +1,9 @@
 <template>
   <div class="tags__inner">
     <div class="tag tag__inner" v-for="keyword  in keywords">
-      <span class="tag__name">{{keyword.name}} </span>
       <span class="tag__value">{{keyword.value}}</span>
+      <span class="tag__name">{{keyword.name}} </span>
+      <span class="tag__name">{{keyword.translatedName}} </span>
       <div class="tag__actions">
         <md-button class="tag__button tag__button--remove md-icon-button" @click="removeTag(keyword.name,keyword.value,file.Key)">
           <md-icon>delete</md-icon>
@@ -66,13 +67,13 @@
   }
 
   .tag__inner {
-    flex-basis: 40%;
+    flex-basis: 100%;
     border: 1px solid black;
     border-radius: 4px;
     margin:0.5em;
 
     display: flex;
-    justify-content: left;
+    justify-content: space-between;
   }
 
   .tag__name{

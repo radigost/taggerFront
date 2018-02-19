@@ -27,6 +27,8 @@
           <div class="image-card__result" v-show="!isLoading(file)">
 
             <label>Заголовок</label>
+            <input class="image-card__input image-card__input--caption" type="text" v-model="file.caption"/>
+            <label>Описание</label>
             <input class="image-card__input image-card__input--caption" type="text" v-model="file.description"/>
             <label>Тэги</label>
             <div class="image-card__input" >
@@ -41,7 +43,7 @@
             </div>
 
             <md-button class="align-left"
-                       @click="setExif(file,{keywords:getTags(file.labels),description:file.description})"
+                       @click="setExif(file,{tags:getTags(file.labels),description:file.description})"
                        style="width:auto;">Записать данные
             </md-button>
 
@@ -121,8 +123,9 @@
       setExif(file, options) {
         const exifObj = piexif.load(file.src);
         try {
-          if (_.get(options, 'keywords')) exifObj['0th'][piexif.ImageIFD.XPKeywords] = toUTF8Array(options.keywords);
+          if (_.get(options, 'keywords')) exifObj['0th'][piexif.ImageIFD.XPKeywords] = toUTF8Array(options.tags);
           if (_.get(options, 'description')) exifObj['0th'][piexif.ImageIFD.ImageDescription] = options.description;
+          if (_.get(options, 'caption')) exifObj['0th'][piexif.ImageIFD.DocumentName] = options.caption;
           delete exifObj['thumbnail'];
           const exifStr = piexif.dump(exifObj);
           file.src = piexif.insert(exifStr, file.src);
