@@ -86,7 +86,7 @@ const store = new Vuex.Store({
 
     addKeywords(state, payload) {
       const updateKeywords = (file, keywords) => {
-        _.forEach(keywords, (keyword) => {
+        keywords.forEach((keyword,i) => {
           if (_.isUndefined(_.get(file, 'keywords'))) file.keywords = [];
           const exists = _.find(file.keywords, { name: keyword });
 
@@ -94,7 +94,7 @@ const store = new Vuex.Store({
             file.keywords = _.map(file.keywords, (kwrd) => {
               if (kwrd.name === keyword) {
                 kwrd.value += _.get(payload, 'action', 0);
-                kwrd.translatedName = _.get(payload, 'keyword.translatedName', _.get(kwrd,'translatedName'));
+                kwrd.translatedName = _.get(payload, 'translatedNames', _.get(kwrd,'translatedName'))[i];
               }
               return kwrd;
             });
@@ -229,11 +229,13 @@ const store = new Vuex.Store({
 
       commit('changeFiles', files);
     },
-    async getShutterstockImageInfo({ commit, state }, params) {
+    async getShutterstockImageInfo({ commit, state ,dispatch}, params) {
       const res = await shutterstock.get(`/${params.id}`);
       const keywords = _.get(res, 'data.keywords');
       commit('addKeywords', { keywords, Key: params.Key, action: 1 });
       commit('markTagsTaken', { id: params.id, Key: params.Key, action: true });
+      dispatch('translateKeyword',{ keywords, Key: params.Key });
+
     },
     async removeImageTags({ commit, state }, params) {
       const res = await shutterstock.get(`/${params.id}`);
@@ -249,14 +251,26 @@ const store = new Vuex.Store({
 
     //  translate
     async translateTag({ commit, state }, params) {
-      const text = await translateService.translate(params.tag.Name);
+      const text = await translateService.translate([params.tag.Name]);
       const updatedTag = { ...params.tag, translatedName: text };
       commit('updateTagForFile', { tag: updatedTag, Key: params.Key });
     },
     async translateKeyword({ commit, state }, params) {
       try {
-        params.keyword.translatedName = await translateService.translate(params.keyword.name);
-        commit('addKeywords', { Key: params.Key, keyword: params.keyword });
+        let texts=[],keywords;
+        if (params.keywords === void 0){
+          keywords = [params.keyword]
+        }
+        else {
+          keywords = params.keywords.map(name=> ({name}));
+        }
+
+        keywords.forEach((keyword)=>{
+          texts.push(keyword.name)
+        });
+        let translatedNames = await translateService.translate(texts);
+        commit('addKeywords', { Key: params.Key, keywords: texts,translatedNames });
+
       }
       catch (err) {
         console.error(err);
