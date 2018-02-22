@@ -45,8 +45,8 @@
       if(!_.find(this.$store.state.files, { Key: this.$route.params.key })){
         this.$store.dispatch('listObjects');
       }
-
       this.$store.dispatch('getShutterstockCategories');
+      this.$store.dispatch('detectLabels', this.$route.params.key);
 
     }
   };

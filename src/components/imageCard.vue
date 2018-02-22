@@ -1,23 +1,25 @@
 <template>
   <div class="list__card">
-    <md-card md-with-hover>
+    <md-card >
       <md-card-area md-inset>
         <md-card-media>
           <img class="image-card__image" :id="file.Key" :src="file.src">
         </md-card-media>
         <md-card-actions>
           <md-button @click="detectLabels(file.Key)" style="width:auto;">Распознать</md-button>
-          <md-button @click="deleteImage(file.Key)" style="width:auto;">
-            <md-icon>delete</md-icon>
-          </md-button>
+          <!--<md-button @click="deleteImage(file.Key)" style="width:auto;">-->
+            <!--<md-icon>delete</md-icon>-->
+          <!--</md-button>-->
           <md-button @click="findShutterstockImages(file)" style="width:auto;"> Найти похожие</md-button>
         </md-card-actions>
       </md-card-area>
       <md-card-area>
 
         <md-card-content>
-          <div><input v-model="toAdd" type="text"/>
-            <button @click="addTag(toAdd,file.Key)"> +</button>
+          <div class="image-card__result">
+            <label>Добавить произвольные теги</label>
+            <input class="image-card__input image-card__input--caption" v-model="toAdd" type="text"/>
+            <md-button class="align-left" @click="addTag(toAdd,file.Key)">Добавить</md-button>
           </div>
         </md-card-content>
 
@@ -25,7 +27,6 @@
           <md-progress md-indeterminate v-show="isLoading(file)"></md-progress>
           <hr class="image-card__hr">
           <div class="image-card__result" v-show="!isLoading(file)">
-
             <label>Заголовок</label>
             <input class="image-card__input image-card__input--caption" type="text" v-model="file.caption"/>
             <label>Описание</label>
@@ -42,12 +43,12 @@
               </div>
             </div>
 
-            <md-button class="align-left"
-                       @click="setExif(file,{tags:getTags(file.labels),description:file.description})"
-                       style="width:auto;">Записать данные
-            </md-button>
+            <!--<md-button class="align-left"-->
+                       <!--@click="setExif(file,{tags:getTags(file.labels),description:file.description})"-->
+                       <!--style="width:auto;">Записать данные-->
+            <!--</md-button>-->
 
-            <md-button class="align-left" v-bind:href="file.src" download v-bind:disabled="!canDownload">Скачать</md-button>
+            <!--<md-button class="align-left" v-bind:href="file.src" download v-bind:disabled="!canDownload">Скачать</md-button>-->
           </div>
         </md-card-content>
       </md-card-area>
@@ -192,9 +193,9 @@
     object-position: center; /* Center the image within the element */
     max-height: 30em;
     max-width: 30em;
-    /*height: 20em;*/
-    /*width: 20em;*/
-    border-radius: 1em;
+    height: 20em;
+    width: 20em;
+    border-radius: 0.5em;
     margin: 1em;
     /*width:auto;*/
   }

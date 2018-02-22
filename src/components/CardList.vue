@@ -77,7 +77,7 @@ export default {
   .list__image{
     overflow: hidden;
     margin: 2em;
-    border-radius: 1em;
+    border-radius: 0.5em;
   }
   .list__image:hover{
     /*box-shadow:         3px 3px 5px 6px #ccc;*/
@@ -99,7 +99,7 @@ export default {
    object-position: center; /* Center the image within the element */
    height: 20em;
    width: 20em;
-   border-radius: 1em;
+   border-radius: 0.5em;
    margin: 1em;
  }
 

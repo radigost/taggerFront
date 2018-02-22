@@ -159,7 +159,7 @@ const store = new Vuex.Store({
       const files = await imageService.listObjects();
       commit('changeFiles', files);
       commit('changeLoadingImageState', false);
-      _.forEach(files, file => dispatch('detectLabels', file.Key));
+      // _.forEach(files, file => dispatch('detectLabels', file.Key));
     },
     async uploadFile({ commit, state, dispatch }, file) {
       commit('changeLoadingImageState', true);
