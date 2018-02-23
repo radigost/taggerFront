@@ -10,13 +10,16 @@ import store from './shared/store';
 import router from './router';
 
 import VTooltip from 'v-tooltip'
-
+import VueAnalytics from 'vue-analytics'
 Vue.use(VTooltip);
 
 
 Vue.config.productionTip = true;
 Vue.use(VueMaterial);
-
+Vue.use(VueAnalytics,{
+  id:'UA-114659425-1',
+  router
+})
 
 /* eslint-disable no-new */
 new Vue({
