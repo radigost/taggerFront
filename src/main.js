@@ -10,12 +10,20 @@ import store from './shared/store';
 import router from './router';
 
 import VTooltip from 'v-tooltip'
+
 import VueAnalytics from 'vue-analytics'
+import VueYandexMetrika from 'vue-yandex-metrika'
 Vue.use(VTooltip);
 
 
 Vue.config.productionTip = true;
 Vue.use(VueMaterial);
+Vue.use(VueYandexMetrika, {
+  id: 47803681,
+  router,
+  env: process.env.NODE_ENV
+  // other options
+});
 Vue.use(VueAnalytics,{
   id:'UA-114659425-1',
   router
