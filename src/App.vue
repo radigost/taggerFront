@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="app__menu">
+    <div class="app__menu" v-show="!isOnLanding">
       <router-link tag="md-button" to="/">
         <md-icon class="app__icon">home</md-icon>
       </router-link>
@@ -15,7 +15,13 @@
 
 <script>
   export default {
-    name: 'app'
+    name: 'app',
+    computed:{
+      isOnLanding(){
+        return this.$route.name==='Landing'
+      }
+    }
+
   };
 </script>
 
