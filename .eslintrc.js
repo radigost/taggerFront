@@ -13,6 +13,10 @@ module.exports = {
   // required to lint *.vue files
   plugins: [
     'html',
+    "security"
+  ],
+  "extends": [
+    "plugin:security/recommended"
   ],
   // check if imports actually resolve
   settings: {
