@@ -1,7 +1,7 @@
 
 
 variables:
-  S3_BUCKET_NAME: "testapp-tagger"
+  S3_BUCKET_NAME: "tagger-front"
 
 
 cache:
